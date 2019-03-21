@@ -26,6 +26,7 @@ import com.fighter.assets.AssetDescriptors;
 import com.fighter.assets.RegionNames;
 import com.fighter.config.GameConfig;
 import com.fighter.entity.CharacterTest;
+import com.fighter.entity.Ground;
 import com.fighter.utils.GdxUtils;
 import com.fighter.utils.ViewportUtils;
 import com.fighter.utils.debug.DebugCameraController;
@@ -51,6 +52,7 @@ public class GameScreen implements Screen {
     private CharacterTest player;
 
     private Body body;
+    private Ground ground;
 
     // == Constructors ==
     public GameScreen(FighterGame game) {
@@ -73,8 +75,9 @@ public class GameScreen implements Screen {
         stage = new Stage(viewport, batch);
         player = new CharacterTest(assetManager);
 
+        ground = new Ground(world);
+
         stage.addActor(player);
-        createGround();
     }
 
     @Override
@@ -86,15 +89,8 @@ public class GameScreen implements Screen {
 
         viewport.apply();
         renderGameplay();
-        viewport.apply();
 
-        renderer.setProjectionMatrix(camera.combined);
-        renderer.begin(ShapeRenderer.ShapeType.Filled);
-
-        renderer.rect(0, 0, GameConfig.WORLD_WIDTH, 1.0f);
-        renderer.circle(body.getPosition().x, body.getPosition().y, 1.0f, 30);
-
-        renderer.end();
+        ground.render(renderer, viewport, camera);
 
         renderDebug();
         debugRenderer.render(world, camera.combined);
@@ -192,23 +188,5 @@ public class GameScreen implements Screen {
         // Remember to dispose of any shapes after you're done with them!
         // BodyDef and FixtureDef don't need disposing, but shapes do.
         circle.dispose();
-
-        // Create our body definition
-        BodyDef groundBodyDef = new BodyDef();
-        // Set its world position
-        groundBodyDef.position.set(new Vector2(0 + GameConfig.WORLD_WIDTH / 2f, 0.5f));
-
-        // Create a body from the defintion and add it to the world
-        Body groundBody = world.createBody(groundBodyDef);
-
-        // Create a polygon shape
-        PolygonShape groundBox = new PolygonShape();
-        // Set the polygon shape as a box which is twice the size of our view port and 20 high
-        // (setAsBox takes half-width and half-height as arguments)
-        groundBox.setAsBox(GameConfig.WORLD_WIDTH / 2f, 0.5f);
-        // Create a fixture from our polygon shape and add it to our ground body
-        groundBody.createFixture(groundBox, 0.0f);
-        // Clean up after ourselves
-        groundBox.dispose();
     }
 }
