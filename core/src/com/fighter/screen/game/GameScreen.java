@@ -168,7 +168,7 @@ public class GameScreen implements Screen {
         bodyDef.position.set(5, 5);
 
         // Create our body in the world using our body definition
-        body = world.createBody(bodyDef);
+        Body body = world.createBody(bodyDef);
 
         // Create a circle shape and set its radius to 6
 
