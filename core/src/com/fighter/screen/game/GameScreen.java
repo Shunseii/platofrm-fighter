@@ -49,9 +49,9 @@ public class GameScreen implements Screen {
 
     private DebugCameraController dbc;
 
+    // TODO Add Box2D Body + Fixture to CharacterTest
     private CharacterTest player;
 
-    private Body body;
     private Ground ground;
 
     // == Constructors ==
