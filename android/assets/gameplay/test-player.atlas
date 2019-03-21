@@ -1,0 +1,48 @@
+
+test-player.png
+size: 128,64
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+test_left_stand
+  rotate: false
+  xy: 21, 32
+  size: 15, 30
+  orig: 15, 30
+  offset: 0, 0
+  index: -1
+test_left_walk
+  rotate: false
+  xy: 2, 33
+  size: 17, 29
+  orig: 17, 29
+  offset: 0, 0
+  index: 1
+test_left_walk
+  rotate: false
+  xy: 55, 33
+  size: 15, 29
+  orig: 15, 29
+  offset: 0, 0
+  index: 2
+test_right_stand
+  rotate: false
+  xy: 38, 32
+  size: 15, 30
+  orig: 15, 30
+  offset: 0, 0
+  index: -1
+test_right_walk
+  rotate: false
+  xy: 2, 2
+  size: 17, 29
+  orig: 17, 29
+  offset: 0, 0
+  index: 2
+test_right_walk
+  rotate: false
+  xy: 72, 33
+  size: 15, 29
+  orig: 15, 29
+  offset: 0, 0
+  index: 1
