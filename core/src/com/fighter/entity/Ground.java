@@ -35,6 +35,7 @@ public class Ground {
         bodyShape.setAsBox(X_POS, Y_POS);
 
         body.createFixture(bodyShape, GROUND_DENSITY);
+        body.setUserData(this);
 
         bodyShape.dispose();
     }

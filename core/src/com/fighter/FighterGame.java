@@ -41,7 +41,7 @@ public class FighterGame extends Game {
 		batch = new SpriteBatch();
 		assetManager = new AssetManager();
 		assetManager.getLogger().setLevel(Logger.DEBUG);
-		world = new World(new Vector2(0, -9.8f), true);
+		world = new World(new Vector2(0, -15f), true);
 
 		setScreen(new LoadingScreen(this));
 	}

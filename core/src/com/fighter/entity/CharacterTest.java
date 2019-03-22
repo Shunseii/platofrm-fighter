@@ -31,16 +31,16 @@ public class CharacterTest extends ActorBase {
         position = new Vector2((GameConfig.WORLD_WIDTH - 1) / 2f, 1);
         velocity = new Vector2();
 
-        bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set((GameConfig.WORLD_WIDTH - 1) / 2f, 1f);
+        //bodyDef = new BodyDef();
+        //bodyDef.type = BodyDef.BodyType.DynamicBody;
+        //bodyDef.position.set((GameConfig.WORLD_WIDTH - 1) / 2f, 1f);
 
-        body = world.createBody(bodyDef);
+        //body = world.createBody(bodyDef);
 
         PolygonShape bodyShape = new PolygonShape();
         bodyShape.setAsBox(CHARACTER_WIDTH / 2f, CHARACTER_HEIGHT / 2f);
 
-        fixtureDef = new FixtureDef();
+        //fixtureDef = new FixtureDef();
         fixtureDef.shape = bodyShape;
         fixtureDef.density = CHARACTER_DENSITY;
         fixtureDef.friction = CHARACTER_FRICTION;
