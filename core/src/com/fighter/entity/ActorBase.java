@@ -9,6 +9,11 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -19,13 +24,25 @@ public abstract class ActorBase extends Actor {
 
     // == Constants ==
     private static final Logger LOG = new Logger(ActorBase.class.getName(), Logger.DEBUG);
+
     private static final float TEST_MOVE_SPEED = 4.0f;
     private static final float TEST_JUMP_SPEED = 1.5f * GameConfig.WORLD_HEIGHT;
     private static final float TEST_MAX_JUMP_DURATION = 0.1f;
 
+    protected static final float CHARACTER_DENSITY = 0.5f;
+    protected static final float CHARACTER_FRICTION = 0.4f;
+    protected static final float CHARACTER_HEIGHT = 1.0f;
+    protected static final float CHARACTER_WIDTH = 0.5f;
+
     // == Attributes ==
     protected AssetManager assetManager;
-    protected Rectangle collisionShape = new Rectangle();
+
+    protected BodyDef bodyDef;
+    protected Body body;
+    protected FixtureDef fixtureDef;
+    protected Fixture fixture;
+
+    protected World world;
 
     protected Vector2 position;
     protected Vector2 velocity;
@@ -43,8 +60,10 @@ public abstract class ActorBase extends Actor {
     protected Animation<TextureRegion> rightWalkAnimation;
 
     // == Constructors ==
-    public ActorBase(AssetManager assetManager) {
+    public ActorBase(AssetManager assetManager, World world) {
         this.assetManager = assetManager;
+        this.world = world;
+
         facing = Direction.RIGHT;
         jumpState = JumpState.GROUNDED;
         walkState = WalkState.STANDING;
@@ -52,7 +71,7 @@ public abstract class ActorBase extends Actor {
         setRegions();
         init();
         setPosition(position.x, position.y);
-        setSize(0.5f, 1f);
+        setSize(CHARACTER_WIDTH, CHARACTER_HEIGHT);
     }
 
     // == Public methods ==
@@ -79,19 +98,17 @@ public abstract class ActorBase extends Actor {
                 getOriginX(), getOriginY(),
                 getWidth(), getHeight(),
                 getScaleX(), getScaleY(),
-                getRotation()
+                MathUtils.radiansToDegrees * body.getAngle()//getRotation()
         );
     }
 
     // == Protected methods ==
     @Override
     protected void positionChanged() {
-        updateCollisionShape();
     }
 
     @Override
     protected void sizeChanged() {
-        updateCollisionShape();
     }
 
     // == Abstract methods ==
@@ -99,13 +116,6 @@ public abstract class ActorBase extends Actor {
     abstract void init();
 
     // == Private methods ==
-    private void updateCollisionShape() {
-        float halfWidth = getWidth() / 2f;
-        float halfHeight = getHeight() / 2f;
-
-        collisionShape.setPosition(getX() + halfWidth, getY() + halfHeight);
-    }
-
     private void update(float delta) {
         if (jumpState != JumpState.JUMPING) velocity.y -= GameConfig.GRAVITY;
         position.mulAdd(velocity, delta);
@@ -122,8 +132,10 @@ public abstract class ActorBase extends Actor {
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             moveRight(delta);
+            body.setLinearVelocity(2.0f, body.getLinearVelocity().y);
         } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             moveLeft(delta);
+            body.setLinearVelocity(-2.0f, body.getLinearVelocity().y);
         } else {
             walkState = WalkState.STANDING;
         }
@@ -131,6 +143,7 @@ public abstract class ActorBase extends Actor {
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
             switch (jumpState) {
                 case GROUNDED:
+                    body.applyForce(0f, 50f, body.getWorldCenter().x, body.getWorldCenter().y, true);
                     startJump();
                     break;
                 case JUMPING:
@@ -138,6 +151,7 @@ public abstract class ActorBase extends Actor {
                     break;
             }
         }
+
 
         setPosition(position.x, position.y);
     }

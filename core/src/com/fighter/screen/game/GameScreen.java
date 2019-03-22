@@ -73,7 +73,7 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
         renderer = new ShapeRenderer();
         stage = new Stage(viewport, batch);
-        player = new CharacterTest(assetManager);
+        player = new CharacterTest(assetManager, world);
 
         ground = new Ground(world);
 

@@ -26,6 +26,7 @@ public class Ground {
     // == Constructors ==
     public Ground(World world) {
         bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
         bodyDef.position.set(new Vector2(X_POS, Y_POS));
 
         body = world.createBody(bodyDef);
