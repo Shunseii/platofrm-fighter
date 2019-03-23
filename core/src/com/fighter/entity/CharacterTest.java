@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Logger;
+import com.fighter.FighterGame;
 import com.fighter.assets.AssetDescriptors;
 import com.fighter.assets.RegionNames;
 import com.fighter.config.GameConfig;

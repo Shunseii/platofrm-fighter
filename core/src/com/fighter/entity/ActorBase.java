@@ -2,6 +2,7 @@ package com.fighter.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -10,8 +11,12 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -62,10 +67,14 @@ public abstract class ActorBase extends Actor {
     protected Animation<TextureRegion> leftWalkAnimation;
     protected Animation<TextureRegion> rightWalkAnimation;
 
+    protected MyContactListener contactListener = new MyContactListener();
+    protected int numFootContact;
+
     // == Constructors ==
     public ActorBase(AssetManager assetManager, World world) {
         this.assetManager = assetManager;
         this.world = world;
+        world.setContactListener(contactListener);
 
         facing = Direction.RIGHT;
         jumpState = JumpState.GROUNDED;
@@ -115,8 +124,6 @@ public abstract class ActorBase extends Actor {
                 getScaleX(), getScaleY(),
                 getRotation()
         );
-
-        LOG.debug("Mass: " + body.getMass());
     }
 
     // == Protected methods ==
@@ -134,22 +141,6 @@ public abstract class ActorBase extends Actor {
 
     // == Private methods ==
     private void update(float delta) {
-        if (jumpState != JumpState.GROUNDED && body.getLinearVelocity().y == 0) {
-            jumpState = JumpState.GROUNDED;
-        }
-        //if (jumpState != JumpState.JUMPING) velocity.y -= GameConfig.GRAVITY;
-        //position.mulAdd(velocity, delta);
-
-        /*if (position.y < 0) {
-            position.y = 0;
-            velocity.y = 0;
-            jumpState = JumpState.GROUNDED;
-        }*/
-
-        /*if (jumpState != JumpState.JUMPING && velocity.y != 0) {
-            jumpState = JumpState.FALLING;
-        }*/
-
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             moveRight();
         } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
@@ -159,20 +150,11 @@ public abstract class ActorBase extends Actor {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            //switch (jumpState) {
-            //    case GROUNDED:
-            if (jumpState == JumpState.GROUNDED) {
+            if (numFootContact >= 1) {
                 float impulse = body.getMass() * 1000;
                 body.setLinearVelocity(body.getLinearVelocity().x, 5.0f);
                 //body.applyForce(0f, impulse, body.getWorldCenter().x, body.getWorldCenter().y, true);
-                jumpState = JumpState.JUMPING;
             }
-            //        startJump();
-            //        break;
-            //    case JUMPING:
-            //        endJump();
-            //        break;
-            //}
         }
 
         setPosition(body.getPosition().x, body.getPosition().y);
@@ -190,28 +172,6 @@ public abstract class ActorBase extends Actor {
         body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
     }
 
-    private void startJump() {
-        jumpState = JumpState.JUMPING;
-        jumpStartTime = TimeUtils.nanoTime();
-        continueJump();
-    }
-
-    private void continueJump() {
-        if (jumpState == JumpState.JUMPING) {
-            float jumpDuration = MathUtils.nanoToSec * (TimeUtils.nanoTime() - jumpStartTime);
-
-            if (jumpDuration < TEST_MAX_JUMP_DURATION) {
-                velocity.y = TEST_JUMP_SPEED;
-            } else {
-                endJump();
-            }
-        }
-    }
-
-    private void endJump() {
-        if (jumpState == JumpState.JUMPING) jumpState = JumpState.FALLING;
-    }
-
     private void createFootSensor() {
         Vector2 center = new Vector2(0.0f, -0.5f);
         PolygonShape footShape = new PolygonShape();
@@ -223,6 +183,7 @@ public abstract class ActorBase extends Actor {
         fixtureDef.density = 1.0f;
 
         footFixture = body.createFixture(fixtureDef);
+        footFixture.setUserData(3);
 
         footShape.dispose();
     }
@@ -242,5 +203,45 @@ public abstract class ActorBase extends Actor {
         GROUNDED,
         JUMPING,
         FALLING
+    }
+
+    public class MyContactListener implements ContactListener {
+        @Override
+        public void beginContact(Contact contact) {
+            Object fixtureUserData = contact.getFixtureA().getUserData();
+            if (fixtureUserData == null) return;
+
+            if ((Integer) fixtureUserData == 3)
+                ++numFootContact;
+            //check if fixture B was the foot sensor
+            fixtureUserData = contact.getFixtureB().getUserData();
+            if (fixtureUserData == null) return;
+            if ((Integer) fixtureUserData == 3)
+                ++numFootContact;
+        }
+
+        @Override
+        public void endContact(Contact contact) {
+            Object fixtureUserData = contact.getFixtureA().getUserData();
+            if (fixtureUserData == null) return;
+
+            if ((Integer) fixtureUserData == 3)
+                --numFootContact;
+            //check if fixture B was the foot sensor
+            fixtureUserData = contact.getFixtureB().getUserData();
+            if (fixtureUserData == null) return;
+            if ((Integer) fixtureUserData == 3)
+                --numFootContact;
+        }
+
+        @Override
+        public void preSolve(Contact contact, Manifold manifold) {
+
+        }
+
+        @Override
+        public void postSolve(Contact contact, ContactImpulse contactImpulse) {
+
+        }
     }
 }
