@@ -12,6 +12,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -71,6 +72,7 @@ public abstract class ActorBase extends Actor {
         walkState = WalkState.STANDING;
 
         bodyDef = new BodyDef();
+        bodyDef.fixedRotation = true;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set((GameConfig.WORLD_WIDTH - 1) / 2f, 1f);
 
@@ -83,7 +85,7 @@ public abstract class ActorBase extends Actor {
 
         createFootSensor();
 
-        setPosition(position.x, position.y);
+        setPosition(body.getPosition().x, body.getPosition().y);
         setSize(CHARACTER_WIDTH, CHARACTER_HEIGHT);
     }
 
@@ -114,7 +116,7 @@ public abstract class ActorBase extends Actor {
                 getRotation()
         );
 
-        LOG.debug("X: " + body.getPosition().x + " Y: " + body.getPosition().y);
+        LOG.debug("Mass: " + body.getMass());
     }
 
     // == Protected methods ==
@@ -132,6 +134,9 @@ public abstract class ActorBase extends Actor {
 
     // == Private methods ==
     private void update(float delta) {
+        if (jumpState != JumpState.GROUNDED && body.getLinearVelocity().y == 0) {
+            jumpState = JumpState.GROUNDED;
+        }
         //if (jumpState != JumpState.JUMPING) velocity.y -= GameConfig.GRAVITY;
         //position.mulAdd(velocity, delta);
 
@@ -153,10 +158,15 @@ public abstract class ActorBase extends Actor {
             walkState = WalkState.STANDING;
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
             //switch (jumpState) {
             //    case GROUNDED:
-                    body.applyForce(0f, 25f, body.getWorldCenter().x, body.getWorldCenter().y, true);
+            if (jumpState == JumpState.GROUNDED) {
+                float impulse = body.getMass() * 1000;
+                body.setLinearVelocity(body.getLinearVelocity().x, 5.0f);
+                //body.applyForce(0f, impulse, body.getWorldCenter().x, body.getWorldCenter().y, true);
+                jumpState = JumpState.JUMPING;
+            }
             //        startJump();
             //        break;
             //    case JUMPING:

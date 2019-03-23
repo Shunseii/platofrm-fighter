@@ -131,12 +131,12 @@ public class GameScreen implements Screen {
 
         ViewportUtils.drawGrid(viewport, renderer);
 
-        renderer.setProjectionMatrix(camera.combined);
+        /*renderer.setProjectionMatrix(camera.combined);
         renderer.begin(ShapeRenderer.ShapeType.Line);
 
         drawDebug();
 
-        renderer.end();
+        renderer.end();*/
     }
 
     private void drawDebug() {
