@@ -53,7 +53,6 @@ public abstract class CharacterBase extends Actor {
     protected Vector2 position;
 
     protected Direction facing;
-    protected JumpState jumpState;
     protected WalkState walkState;
 
     protected long walkStartTime;
@@ -78,7 +77,6 @@ public abstract class CharacterBase extends Actor {
         world.setContactListener(contactListener);
 
         facing = Direction.RIGHT;
-        jumpState = JumpState.GROUNDED;
         walkState = WalkState.STANDING;
 
         bodyDef = new BodyDef();
@@ -155,18 +153,8 @@ public abstract class CharacterBase extends Actor {
     private void update(float delta) {
         if (numFootContacts >= 1) numOfJumps = 1;
 
-        /*if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            moveRight();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            moveLeft();
-        } else {*/
         walkState = WalkState.STANDING;
         if (numFootContacts >= 1) body.setLinearVelocity(0, body.getLinearVelocity().y);
-        //}
-
-        /*if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            jump();
-        }*/
 
         setPosition(body.getPosition().x, body.getPosition().y);
     }
@@ -198,20 +186,16 @@ public abstract class CharacterBase extends Actor {
         STANDING
     }
 
-    enum JumpState {
-        GROUNDED,
-        JUMPING,
-        FALLING
-    }
-
     public class MyContactListener implements ContactListener {
         @Override
         public void beginContact(Contact contact) {
+            //check if fixture A was the foot sensor
             Object fixtureUserData = contact.getFixtureA().getUserData();
             if (fixtureUserData == null) return;
 
             if ((Integer) fixtureUserData == 3)
                 ++numFootContacts;
+
             //check if fixture B was the foot sensor
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
@@ -222,11 +206,13 @@ public abstract class CharacterBase extends Actor {
 
         @Override
         public void endContact(Contact contact) {
+            //check if fixture A was the foot sensor
             Object fixtureUserData = contact.getFixtureA().getUserData();
             if (fixtureUserData == null) return;
 
             if ((Integer) fixtureUserData == 3)
                 --numFootContacts;
+            
             //check if fixture B was the foot sensor
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
