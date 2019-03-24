@@ -15,7 +15,7 @@ public class CharacterTest extends CharacterBase {
     // == Constants ==
     private final Logger LOG = new Logger(CharacterTest.class.getName(), Logger.DEBUG);
 
-    private final float FRAME_DURATION = 0.1f;
+    private final float FRAME_DURATION = 0.15f;
 
     // == Constructors ==
     public CharacterTest(AssetManager assetManager, World world) {
@@ -25,8 +25,9 @@ public class CharacterTest extends CharacterBase {
     // == Protected methods ==
     @Override
     protected void init() {
-        CHARACTER_DENSITY = 0.0f;
-        CHARACTER_FRICTION = 0.3f;
+        CHARACTER_DENSITY = 1.0f;
+        CHARACTER_FRICTION = 1.0f;
+        CHARACTER_RESTITUTION = 0.0f;
 
         CHARACTER_HEIGHT = 0.8f;
         CHARACTER_WIDTH = 0.8f;
@@ -41,7 +42,7 @@ public class CharacterTest extends CharacterBase {
         fixtureDef.shape = bodyShape;
         fixtureDef.density = CHARACTER_DENSITY;
         fixtureDef.friction = CHARACTER_FRICTION;
-        fixtureDef.restitution = 0.0f;
+        fixtureDef.restitution = CHARACTER_RESTITUTION;
 
         fixture = body.createFixture(fixtureDef);
 

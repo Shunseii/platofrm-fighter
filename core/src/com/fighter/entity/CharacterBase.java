@@ -33,6 +33,7 @@ public abstract class CharacterBase extends Actor {
 
     protected float CHARACTER_DENSITY;
     protected float CHARACTER_FRICTION;
+    protected float CHARACTER_RESTITUTION;
     protected float CHARACTER_HEIGHT;
     protected float CHARACTER_WIDTH;
     protected float CHARACTER_SPEED;
