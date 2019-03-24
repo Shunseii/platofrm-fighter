@@ -5,12 +5,9 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Logger;
-import com.fighter.FighterGame;
 import com.fighter.assets.AssetDescriptors;
 import com.fighter.assets.RegionNames;
 import com.fighter.config.GameConfig;
@@ -29,19 +26,24 @@ public class CharacterTest extends ActorBase {
     // == Protected methods ==
     @Override
     protected void init() {
-        position = new Vector2((GameConfig.WORLD_WIDTH - 1) / 2f, 1);
+        X_START = (GameConfig.WORLD_WIDTH - 1) / 2f;
+        Y_START = 1f;
+
+        position = new Vector2(X_START, Y_START);
         velocity = new Vector2();
 
-        //bodyDef = new BodyDef();
-        //bodyDef.type = BodyDef.BodyType.DynamicBody;
-        //bodyDef.position.set((GameConfig.WORLD_WIDTH - 1) / 2f, 1f);
+        CHARACTER_DENSITY = 0.5f;
+        CHARACTER_FRICTION = 0.4f;
+        CHARACTER_HEIGHT = 1.0f;
+        CHARACTER_WIDTH = 0.5f;
+        CHARACTER_SPEED = 2.0f;
 
-        //body = world.createBody(bodyDef);
+        MAX_JUMPS = 2;
+        JUMP_FORCE = 5.0f;
 
         PolygonShape bodyShape = new PolygonShape();
         bodyShape.setAsBox(CHARACTER_WIDTH / 2f, CHARACTER_HEIGHT / 2f);
 
-        //fixtureDef = new FixtureDef();
         fixtureDef.shape = bodyShape;
         fixtureDef.density = CHARACTER_DENSITY;
         fixtureDef.friction = CHARACTER_FRICTION;

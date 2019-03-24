@@ -29,14 +29,17 @@ public abstract class ActorBase extends Actor {
     // == Constants ==
     private static final Logger LOG = new Logger(ActorBase.class.getName(), Logger.DEBUG);
 
-    private static final int MAX_NUM_JUMPS = 2;
-    private static final float JUMP_FORCE = 5.0f;
+    protected static float X_START;
+    protected static float Y_START;
 
-    protected static final float CHARACTER_DENSITY = 0.5f;
-    protected static final float CHARACTER_FRICTION = 0.4f;
-    protected static final float CHARACTER_HEIGHT = 1.0f;
-    protected static final float CHARACTER_WIDTH = 0.5f;
-    protected static final float CHARACTER_SPEED = 2.0f;
+    protected static float CHARACTER_DENSITY;
+    protected static float CHARACTER_FRICTION;
+    protected static float CHARACTER_HEIGHT;
+    protected static float CHARACTER_WIDTH;
+    protected static float CHARACTER_SPEED;
+
+    protected static int MAX_JUMPS;
+    protected static float JUMP_FORCE;
 
     // == Attributes ==
     protected AssetManager assetManager;
@@ -56,7 +59,6 @@ public abstract class ActorBase extends Actor {
     protected JumpState jumpState;
     protected WalkState walkState;
 
-    protected long jumpStartTime;
     protected long walkStartTime;
 
     protected TextureRegion leftRegion;
@@ -85,7 +87,7 @@ public abstract class ActorBase extends Actor {
         bodyDef = new BodyDef();
         bodyDef.fixedRotation = true;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set((GameConfig.WORLD_WIDTH - 1) / 2f, 1f);
+        bodyDef.position.set(X_START, Y_START);
 
         body = world.createBody(bodyDef);
 
@@ -156,7 +158,7 @@ public abstract class ActorBase extends Actor {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            if (numFootContacts >= 1 || numOfJumps < MAX_NUM_JUMPS) {
+            if (numFootContacts >= 1 || numOfJumps < MAX_JUMPS) {
                 ++numOfJumps;
                 jump();
             }
@@ -168,12 +170,7 @@ public abstract class ActorBase extends Actor {
     private void moveRight() {
         walkState = WalkState.WALKING;
         facing = Direction.RIGHT;
-
-        float velChange = CHARACTER_SPEED - body.getLinearVelocity().x;
-        float impulse = body.getMass() * velChange; //disregard time factor
-        body.applyLinearImpulse(impulse, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
-
-        //body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
+        body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
     }
 
     private void moveLeft() {
@@ -199,9 +196,7 @@ public abstract class ActorBase extends Actor {
     }
 
     private void jump() {
-        //float impulse = body.getMass() * 350;
         body.setLinearVelocity(body.getLinearVelocity().x, JUMP_FORCE);
-        //body.applyForce(0f, impulse, body.getWorldCenter().x, body.getWorldCenter().y, true);
     }
 
     // == Enums ==
@@ -232,6 +227,7 @@ public abstract class ActorBase extends Actor {
             //check if fixture B was the foot sensor
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
+
             if ((Integer) fixtureUserData == 3)
                 ++numFootContacts;
         }
@@ -246,6 +242,7 @@ public abstract class ActorBase extends Actor {
             //check if fixture B was the foot sensor
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
+
             if ((Integer) fixtureUserData == 3)
                 --numFootContacts;
         }
