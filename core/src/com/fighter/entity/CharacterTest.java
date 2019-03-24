@@ -33,7 +33,7 @@ public class CharacterTest extends CharacterBase {
         CHARACTER_SPEED = 2.0f;
 
         MAX_JUMPS = 2;
-        JUMP_FORCE = 6.0f;
+        JUMP_FORCE = 7.0f;
 
         PolygonShape bodyShape = new PolygonShape();
         bodyShape.setAsBox(CHARACTER_WIDTH / 2f, CHARACTER_HEIGHT / 2f);
