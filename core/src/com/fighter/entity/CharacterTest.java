@@ -4,7 +4,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Logger;
@@ -26,13 +25,12 @@ public class CharacterTest extends CharacterBase {
     // == Protected methods ==
     @Override
     protected void init() {
-        position = new Vector2(X_START, Y_START);
+        CHARACTER_DENSITY = 0.0f;
+        CHARACTER_FRICTION = 0.3f;
 
-        CHARACTER_DENSITY = 0.5f;
-        CHARACTER_FRICTION = 0.4f;
-        CHARACTER_HEIGHT = 1.0f;
-        CHARACTER_WIDTH = 0.5f;
-        CHARACTER_SPEED = 3.0f;
+        CHARACTER_HEIGHT = 0.8f;
+        CHARACTER_WIDTH = 0.8f;
+        CHARACTER_SPEED = 2.0f;
 
         MAX_JUMPS = 2;
         JUMP_FORCE = 6.0f;
@@ -54,20 +52,34 @@ public class CharacterTest extends CharacterBase {
     protected void setRegions() {
         TextureAtlas testAtlas = assetManager.get(AssetDescriptors.TEST_PLAYER);
 
-        rightRegion = testAtlas.findRegion(RegionNames.TEST_RIGHT_STAND);
-        leftRegion = testAtlas.findRegion(RegionNames.TEST_LEFT_STAND);
+        rightRegion = testAtlas.findRegions(RegionNames.TEST_RIGHT_STAND).get(0);
+        leftRegion = testAtlas.findRegions(RegionNames.TEST_LEFT_STAND).get(0);
 
         leftWalkAnimation =
                 new Animation<TextureRegion>(
                         FRAME_DURATION,
-                        testAtlas.findRegions("test_left_walk"),
+                        testAtlas.findRegions(RegionNames.TEST_LEFT_WALK),
                         Animation.PlayMode.LOOP
                 );
 
         rightWalkAnimation =
                 new Animation<TextureRegion>(
                         FRAME_DURATION,
-                        testAtlas.findRegions("test_right_walk"),
+                        testAtlas.findRegions(RegionNames.TEST_RIGHT_WALK),
+                        Animation.PlayMode.LOOP
+                );
+
+        leftStandAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_LEFT_STAND),
+                        Animation.PlayMode.LOOP
+                );
+
+        rightStandAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_RIGHT_STAND),
                         Animation.PlayMode.LOOP
                 );
     }

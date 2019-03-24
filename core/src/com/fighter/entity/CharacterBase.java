@@ -1,5 +1,6 @@
 package com.fighter.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -42,6 +43,7 @@ public abstract class CharacterBase extends Actor {
     // == Attributes ==
     protected AssetManager assetManager;
 
+    // Physics Body
     protected BodyDef bodyDef;
     protected Body body;
     protected FixtureDef fixtureDef;
@@ -50,15 +52,16 @@ public abstract class CharacterBase extends Actor {
 
     protected World world;
 
-    protected Vector2 position;
-
     protected Direction facing;
     protected WalkState walkState;
 
-    protected long walkStartTime;
+    protected float stateTime;
 
+    // Animations
     protected TextureRegion leftRegion;
     protected TextureRegion rightRegion;
+    protected Animation<TextureRegion> leftStandAnimation;
+    protected Animation<TextureRegion> rightStandAnimation;
     protected Animation<TextureRegion> leftWalkAnimation;
     protected Animation<TextureRegion> rightWalkAnimation;
 
@@ -71,6 +74,7 @@ public abstract class CharacterBase extends Actor {
         this.assetManager = assetManager;
         this.world = world;
 
+        stateTime = 0;
         numFootContacts = 0;
         numOfJumps = 1;
 
@@ -106,14 +110,19 @@ public abstract class CharacterBase extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        TextureRegion region = (facing == Direction.RIGHT ? rightRegion : leftRegion);
+        TextureRegion region;
+        stateTime += Gdx.graphics.getDeltaTime();
 
-        if (facing == Direction.RIGHT && walkState == WalkState.WALKING) {
-            float walkTimeSeconds = MathUtils.nanoToSec * (TimeUtils.nanoTime() - walkStartTime);
-            region = rightWalkAnimation.getKeyFrame(walkTimeSeconds);
-        } else if (facing == Direction.LEFT && walkState == WalkState.WALKING) {
-            float walkTimeSeconds = MathUtils.nanoToSec * (TimeUtils.nanoTime() - walkStartTime);
-            region = leftWalkAnimation.getKeyFrame(walkTimeSeconds);
+        if (walkState == WalkState.WALKING) {
+            if (facing == Direction.RIGHT) {
+                region = rightWalkAnimation.getKeyFrame(stateTime, true);
+            } else {
+                region = leftWalkAnimation.getKeyFrame(stateTime, true);
+            }
+        } else if (facing == Direction.RIGHT) {
+            region = rightStandAnimation.getKeyFrame(stateTime, true);
+        } else {
+            region = leftStandAnimation.getKeyFrame(stateTime, true);
         }
 
         batch.draw(region,

@@ -1,48 +1,118 @@
 
 test-player.png
-size: 128,64
+size: 512,32
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 test_left_stand
   rotate: false
-  xy: 21, 32
-  size: 15, 30
-  orig: 15, 30
+  xy: 2, 2
+  size: 28, 18
+  orig: 28, 18
   offset: 0, 0
-  index: -1
+  index: 1
+test_left_stand
+  rotate: false
+  xy: 32, 2
+  size: 28, 18
+  orig: 28, 18
+  offset: 0, 0
+  index: 2
+test_left_stand
+  rotate: false
+  xy: 62, 2
+  size: 28, 18
+  orig: 28, 18
+  offset: 0, 0
+  index: 3
+test_left_stand
+  rotate: false
+  xy: 92, 2
+  size: 28, 18
+  orig: 28, 18
+  offset: 0, 0
+  index: 4
 test_left_walk
   rotate: false
-  xy: 2, 33
-  size: 17, 29
-  orig: 17, 29
+  xy: 242, 2
+  size: 26, 18
+  orig: 26, 18
   offset: 0, 0
   index: 1
 test_left_walk
   rotate: false
-  xy: 55, 33
-  size: 15, 29
-  orig: 15, 29
+  xy: 270, 2
+  size: 26, 18
+  orig: 26, 18
+  offset: 0, 0
+  index: 2
+test_left_walk
+  rotate: false
+  xy: 298, 2
+  size: 26, 18
+  orig: 26, 18
+  offset: 0, 0
+  index: 3
+test_left_walk
+  rotate: false
+  xy: 326, 2
+  size: 26, 18
+  orig: 26, 18
+  offset: 0, 0
+  index: 4
+test_right_stand
+  rotate: false
+  xy: 122, 2
+  size: 28, 18
+  orig: 28, 18
+  offset: 0, 0
+  index: 1
+test_right_stand
+  rotate: false
+  xy: 152, 2
+  size: 28, 18
+  orig: 28, 18
   offset: 0, 0
   index: 2
 test_right_stand
   rotate: false
-  xy: 38, 32
-  size: 15, 30
-  orig: 15, 30
+  xy: 182, 2
+  size: 28, 18
+  orig: 28, 18
   offset: 0, 0
-  index: -1
+  index: 3
+test_right_stand
+  rotate: false
+  xy: 212, 2
+  size: 28, 18
+  orig: 28, 18
+  offset: 0, 0
+  index: 4
 test_right_walk
   rotate: false
-  xy: 2, 2
-  size: 17, 29
-  orig: 17, 29
+  xy: 354, 2
+  size: 26, 18
+  orig: 26, 18
+  offset: 0, 0
+  index: 1
+test_right_walk
+  rotate: false
+  xy: 382, 2
+  size: 26, 18
+  orig: 26, 18
   offset: 0, 0
   index: 2
 test_right_walk
   rotate: false
-  xy: 72, 33
-  size: 15, 29
-  orig: 15, 29
+  xy: 410, 2
+  size: 26, 18
+  orig: 26, 18
   offset: 0, 0
-  index: 1
+  index: 3
+test_right_walk
+  rotate: false
+  xy: 438, 2
+  size: 26, 18
+  orig: 26, 18
+  offset: 0, 0
+  index: 4
