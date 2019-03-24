@@ -1,7 +1,5 @@
 package com.fighter.entity;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -24,22 +22,22 @@ import com.badlogic.gdx.utils.TimeUtils;
 import com.fighter.config.GameConfig;
 
 
-public abstract class ActorBase extends Actor {
+public abstract class CharacterBase extends Actor {
 
     // == Constants ==
-    private static final Logger LOG = new Logger(ActorBase.class.getName(), Logger.DEBUG);
+    private final Logger LOG = new Logger(CharacterBase.class.getName(), Logger.DEBUG);
 
-    protected static float X_START;
-    protected static float Y_START;
+    protected float X_START = (GameConfig.WORLD_WIDTH - 1) / 2f;
+    protected float Y_START = 1f;
 
-    protected static float CHARACTER_DENSITY;
-    protected static float CHARACTER_FRICTION;
-    protected static float CHARACTER_HEIGHT;
-    protected static float CHARACTER_WIDTH;
-    protected static float CHARACTER_SPEED;
+    protected float CHARACTER_DENSITY;
+    protected float CHARACTER_FRICTION;
+    protected float CHARACTER_HEIGHT;
+    protected float CHARACTER_WIDTH;
+    protected float CHARACTER_SPEED;
 
-    protected static int MAX_JUMPS;
-    protected static float JUMP_FORCE;
+    protected int MAX_JUMPS;
+    protected float JUMP_FORCE;
 
     // == Attributes ==
     protected AssetManager assetManager;
@@ -53,7 +51,6 @@ public abstract class ActorBase extends Actor {
     protected World world;
 
     protected Vector2 position;
-    protected Vector2 velocity;
 
     protected Direction facing;
     protected JumpState jumpState;
@@ -71,7 +68,7 @@ public abstract class ActorBase extends Actor {
     protected int numOfJumps;
 
     // == Constructors ==
-    public ActorBase(AssetManager assetManager, World world) {
+    public CharacterBase(AssetManager assetManager, World world) {
         this.assetManager = assetManager;
         this.world = world;
 
@@ -130,13 +127,23 @@ public abstract class ActorBase extends Actor {
         );
     }
 
-    // == Protected methods ==
-    @Override
-    protected void positionChanged() {
+    public void moveRight() {
+        walkState = WalkState.WALKING;
+        facing = Direction.RIGHT;
+        body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
     }
 
-    @Override
-    protected void sizeChanged() {
+    public void moveLeft() {
+        walkState = WalkState.WALKING;
+        facing = Direction.LEFT;
+        body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
+    }
+
+    public void jump() {
+        if (numFootContacts >= 1 || numOfJumps < MAX_JUMPS) {
+            ++numOfJumps;
+            body.setLinearVelocity(body.getLinearVelocity().x, JUMP_FORCE);
+        }
     }
 
     // == Abstract methods ==
@@ -148,35 +155,20 @@ public abstract class ActorBase extends Actor {
     private void update(float delta) {
         if (numFootContacts >= 1) numOfJumps = 1;
 
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        /*if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             moveRight();
         } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             moveLeft();
-        } else {
-            walkState = WalkState.STANDING;
-            if (numFootContacts >= 1) body.setLinearVelocity(0, body.getLinearVelocity().y);
-        }
+        } else {*/
+        walkState = WalkState.STANDING;
+        if (numFootContacts >= 1) body.setLinearVelocity(0, body.getLinearVelocity().y);
+        //}
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            if (numFootContacts >= 1 || numOfJumps < MAX_JUMPS) {
-                ++numOfJumps;
-                jump();
-            }
-        }
+        /*if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            jump();
+        }*/
 
         setPosition(body.getPosition().x, body.getPosition().y);
-    }
-
-    private void moveRight() {
-        walkState = WalkState.WALKING;
-        facing = Direction.RIGHT;
-        body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
-    }
-
-    private void moveLeft() {
-        walkState = WalkState.WALKING;
-        facing = Direction.LEFT;
-        body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
     }
 
     private void createFootSensor() {
@@ -193,10 +185,6 @@ public abstract class ActorBase extends Actor {
         footFixture.setUserData(3);
 
         footShape.dispose();
-    }
-
-    private void jump() {
-        body.setLinearVelocity(body.getLinearVelocity().x, JUMP_FORCE);
     }
 
     // == Enums ==

@@ -6,31 +6,17 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureAtlas;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.ContactListener;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.Manifold;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fighter.FighterGame;
 import com.fighter.assets.AssetDescriptors;
-import com.fighter.assets.RegionNames;
 import com.fighter.config.GameConfig;
-import com.fighter.entity.CharacterTest;
 import com.fighter.entity.Ground;
+import com.fighter.entity.Player;
 import com.fighter.utils.GdxUtils;
 import com.fighter.utils.ViewportUtils;
 import com.fighter.utils.debug.DebugCameraController;
@@ -48,15 +34,13 @@ public class GameScreen implements Screen {
     private ShapeRenderer renderer;
     private BitmapFont font;
 
-    private Box2DDebugRenderer debugRenderer;
-    private World world;
-
     private DebugCameraController dbc;
+    private Box2DDebugRenderer debugRenderer;
 
-    // TODO Add Box2D Body + Fixture to CharacterTest
-    private CharacterTest player;
-
+    private World world;
     private Ground ground;
+
+    private Player player;
 
     // == Constructors ==
     public GameScreen(FighterGame game) {
@@ -73,11 +57,14 @@ public class GameScreen implements Screen {
         dbc = new DebugCameraController();
         dbc.setStartPosition(GameConfig.WORLD_CENTER_X, GameConfig.WORLD_CENTER_Y);
 
+        font = assetManager.get(AssetDescriptors.TEST_FONT);
+
         camera = new OrthographicCamera();
         viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
         renderer = new ShapeRenderer();
+
         stage = new Stage(viewport, batch);
-        player = new CharacterTest(assetManager, world);
+        player = new Player(assetManager, world);
 
         ground = new Ground(world);
 
@@ -100,7 +87,7 @@ public class GameScreen implements Screen {
         debugRenderer.render(world, camera.combined);
 
         // TODO Update timeStep to be variable - not static
-        world.step(1/60f, 6, 2);
+        world.step(1 / 60f, 6, 2);
     }
 
     @Override
