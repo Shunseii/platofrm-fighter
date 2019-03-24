@@ -2,7 +2,6 @@ package com.fighter.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
@@ -17,7 +16,6 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
-import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -31,9 +29,8 @@ public abstract class ActorBase extends Actor {
     // == Constants ==
     private static final Logger LOG = new Logger(ActorBase.class.getName(), Logger.DEBUG);
 
-    //private static final float TEST_MOVE_SPEED = 4.0f;
-    private static final float TEST_JUMP_SPEED = 1.5f * GameConfig.WORLD_HEIGHT;
-    private static final float TEST_MAX_JUMP_DURATION = 0.1f;
+    private static final int MAX_NUM_JUMPS = 2;
+    private static final float JUMP_FORCE = 5.0f;
 
     protected static final float CHARACTER_DENSITY = 0.5f;
     protected static final float CHARACTER_FRICTION = 0.4f;
@@ -68,12 +65,17 @@ public abstract class ActorBase extends Actor {
     protected Animation<TextureRegion> rightWalkAnimation;
 
     protected MyContactListener contactListener = new MyContactListener();
-    protected int numFootContact;
+    protected int numFootContacts;
+    protected int numOfJumps;
 
     // == Constructors ==
     public ActorBase(AssetManager assetManager, World world) {
         this.assetManager = assetManager;
         this.world = world;
+
+        numFootContacts = 0;
+        numOfJumps = 1;
+
         world.setContactListener(contactListener);
 
         facing = Direction.RIGHT;
@@ -137,23 +139,26 @@ public abstract class ActorBase extends Actor {
 
     // == Abstract methods ==
     abstract void setRegions();
+
     abstract void init();
 
     // == Private methods ==
     private void update(float delta) {
+        if (numFootContacts >= 1) numOfJumps = 1;
+
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             moveRight();
         } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             moveLeft();
         } else {
             walkState = WalkState.STANDING;
+            if (numFootContacts >= 1) body.setLinearVelocity(0, body.getLinearVelocity().y);
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            if (numFootContact >= 1) {
-                float impulse = body.getMass() * 1000;
-                body.setLinearVelocity(body.getLinearVelocity().x, 5.0f);
-                //body.applyForce(0f, impulse, body.getWorldCenter().x, body.getWorldCenter().y, true);
+            if (numFootContacts >= 1 || numOfJumps < MAX_NUM_JUMPS) {
+                ++numOfJumps;
+                jump();
             }
         }
 
@@ -163,7 +168,12 @@ public abstract class ActorBase extends Actor {
     private void moveRight() {
         walkState = WalkState.WALKING;
         facing = Direction.RIGHT;
-        body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
+
+        float velChange = CHARACTER_SPEED - body.getLinearVelocity().x;
+        float impulse = body.getMass() * velChange; //disregard time factor
+        body.applyLinearImpulse(impulse, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
+
+        //body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
     }
 
     private void moveLeft() {
@@ -186,6 +196,12 @@ public abstract class ActorBase extends Actor {
         footFixture.setUserData(3);
 
         footShape.dispose();
+    }
+
+    private void jump() {
+        //float impulse = body.getMass() * 350;
+        body.setLinearVelocity(body.getLinearVelocity().x, JUMP_FORCE);
+        //body.applyForce(0f, impulse, body.getWorldCenter().x, body.getWorldCenter().y, true);
     }
 
     // == Enums ==
@@ -212,12 +228,12 @@ public abstract class ActorBase extends Actor {
             if (fixtureUserData == null) return;
 
             if ((Integer) fixtureUserData == 3)
-                ++numFootContact;
+                ++numFootContacts;
             //check if fixture B was the foot sensor
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
             if ((Integer) fixtureUserData == 3)
-                ++numFootContact;
+                ++numFootContacts;
         }
 
         @Override
@@ -226,12 +242,12 @@ public abstract class ActorBase extends Actor {
             if (fixtureUserData == null) return;
 
             if ((Integer) fixtureUserData == 3)
-                --numFootContact;
+                --numFootContacts;
             //check if fixture B was the foot sensor
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
             if ((Integer) fixtureUserData == 3)
-                --numFootContact;
+                --numFootContacts;
         }
 
         @Override
