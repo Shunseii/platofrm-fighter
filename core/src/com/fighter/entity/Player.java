@@ -9,8 +9,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 
 public class Player extends Actor {
 
-    // TODO Add input handling to this class from Character hierarchy
-
     // == Attributes ==
     private CharacterBase character;
 

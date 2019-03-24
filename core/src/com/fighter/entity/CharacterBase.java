@@ -212,7 +212,7 @@ public abstract class CharacterBase extends Actor {
 
             if ((Integer) fixtureUserData == 3)
                 --numFootContacts;
-            
+
             //check if fixture B was the foot sensor
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
