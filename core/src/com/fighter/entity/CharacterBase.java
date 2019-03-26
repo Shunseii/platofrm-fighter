@@ -5,7 +5,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -19,7 +18,6 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
-import com.badlogic.gdx.utils.TimeUtils;
 import com.fighter.config.GameConfig;
 
 
@@ -65,6 +63,8 @@ public abstract class CharacterBase extends Actor {
     protected Animation<TextureRegion> rightStandAnimation;
     protected Animation<TextureRegion> leftWalkAnimation;
     protected Animation<TextureRegion> rightWalkAnimation;
+    protected Animation<TextureRegion> leftAttackAnimation;
+    protected Animation<TextureRegion> rightAttackAnimation;
 
     protected MyContactListener contactListener = new MyContactListener();
     protected int numFootContacts;
@@ -135,6 +135,7 @@ public abstract class CharacterBase extends Actor {
         );
     }
 
+    // TODO Set current region in corresponding action method based on State
     public void moveRight() {
         walkState = WalkState.WALKING;
         facing = Direction.RIGHT;
@@ -152,6 +153,10 @@ public abstract class CharacterBase extends Actor {
             ++numOfJumps;
             body.setLinearVelocity(body.getLinearVelocity().x, JUMP_FORCE);
         }
+    }
+
+    public void attack() {
+
     }
 
     // == Abstract methods ==

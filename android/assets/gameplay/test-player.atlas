@@ -1,117 +1,187 @@
 
 test-player.png
-size: 512,32
+size: 1024,32
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-test_left_stand
+test_left_attack
   rotate: false
   xy: 2, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 1
+test_left_attack
+  rotate: false
+  xy: 36, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 2
+test_left_attack
+  rotate: false
+  xy: 70, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 3
+test_left_attack
+  rotate: false
+  xy: 104, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 4
+test_left_attack
+  rotate: false
+  xy: 138, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 5
+test_left_stand
+  rotate: false
+  xy: 342, 4
   size: 28, 18
   orig: 28, 18
   offset: 0, 0
   index: 1
 test_left_stand
   rotate: false
-  xy: 32, 2
+  xy: 372, 4
   size: 28, 18
   orig: 28, 18
   offset: 0, 0
   index: 2
 test_left_stand
   rotate: false
-  xy: 62, 2
+  xy: 402, 4
   size: 28, 18
   orig: 28, 18
   offset: 0, 0
   index: 3
 test_left_stand
   rotate: false
-  xy: 92, 2
+  xy: 432, 4
   size: 28, 18
   orig: 28, 18
   offset: 0, 0
   index: 4
 test_left_walk
   rotate: false
-  xy: 242, 2
+  xy: 582, 4
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 1
 test_left_walk
   rotate: false
-  xy: 270, 2
+  xy: 610, 4
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 2
 test_left_walk
   rotate: false
-  xy: 298, 2
+  xy: 638, 4
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 3
 test_left_walk
   rotate: false
-  xy: 326, 2
+  xy: 666, 4
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 4
+test_right_attack
+  rotate: false
+  xy: 172, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 1
+test_right_attack
+  rotate: false
+  xy: 206, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 2
+test_right_attack
+  rotate: false
+  xy: 240, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 3
+test_right_attack
+  rotate: false
+  xy: 274, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 4
+test_right_attack
+  rotate: false
+  xy: 308, 2
+  size: 32, 20
+  orig: 32, 20
+  offset: 0, 0
+  index: 5
 test_right_stand
   rotate: false
-  xy: 122, 2
+  xy: 462, 4
   size: 28, 18
   orig: 28, 18
   offset: 0, 0
   index: 1
 test_right_stand
   rotate: false
-  xy: 152, 2
+  xy: 492, 4
   size: 28, 18
   orig: 28, 18
   offset: 0, 0
   index: 2
 test_right_stand
   rotate: false
-  xy: 182, 2
+  xy: 522, 4
   size: 28, 18
   orig: 28, 18
   offset: 0, 0
   index: 3
 test_right_stand
   rotate: false
-  xy: 212, 2
+  xy: 552, 4
   size: 28, 18
   orig: 28, 18
   offset: 0, 0
   index: 4
 test_right_walk
   rotate: false
-  xy: 354, 2
+  xy: 694, 4
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 1
 test_right_walk
   rotate: false
-  xy: 382, 2
+  xy: 722, 4
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 2
 test_right_walk
   rotate: false
-  xy: 410, 2
+  xy: 750, 4
   size: 26, 18
   orig: 26, 18
   offset: 0, 0
   index: 3
 test_right_walk
   rotate: false
-  xy: 438, 2
+  xy: 778, 4
   size: 26, 18
   orig: 26, 18
   offset: 0, 0

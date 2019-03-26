@@ -62,7 +62,6 @@ public class CharacterTest extends CharacterBase {
                         testAtlas.findRegions(RegionNames.TEST_LEFT_WALK),
                         Animation.PlayMode.LOOP
                 );
-
         rightWalkAnimation =
                 new Animation<TextureRegion>(
                         FRAME_DURATION,
@@ -76,12 +75,25 @@ public class CharacterTest extends CharacterBase {
                         testAtlas.findRegions(RegionNames.TEST_LEFT_STAND),
                         Animation.PlayMode.LOOP
                 );
-
         rightStandAnimation =
                 new Animation<TextureRegion>(
                         FRAME_DURATION,
                         testAtlas.findRegions(RegionNames.TEST_RIGHT_STAND),
                         Animation.PlayMode.LOOP
+                );
+
+
+        leftAttackAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_LEFT_ATTACK),
+                        Animation.PlayMode.LOOP
+                );
+        rightAttackAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_RIGHT_ATTACK),
+                        Animation.PlayMode.NORMAL
                 );
     }
 }
