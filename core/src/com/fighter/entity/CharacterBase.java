@@ -51,20 +51,24 @@ public abstract class CharacterBase extends Actor {
 
     protected World world;
 
+    // States
     protected Direction facing;
     protected WalkState walkState;
+    protected AttackState attackState;
 
     protected float stateTime;
 
     // Animations
-    protected TextureRegion leftRegion;
-    protected TextureRegion rightRegion;
     protected Animation<TextureRegion> leftStandAnimation;
     protected Animation<TextureRegion> rightStandAnimation;
     protected Animation<TextureRegion> leftWalkAnimation;
     protected Animation<TextureRegion> rightWalkAnimation;
     protected Animation<TextureRegion> leftAttackAnimation;
     protected Animation<TextureRegion> rightAttackAnimation;
+
+    protected TextureRegion leftRegion;
+    protected TextureRegion rightRegion;
+    protected TextureRegion currentRegion;
 
     protected MyContactListener contactListener = new MyContactListener();
     protected int numFootContacts;
@@ -83,6 +87,7 @@ public abstract class CharacterBase extends Actor {
 
         facing = Direction.RIGHT;
         walkState = WalkState.STANDING;
+        attackState = AttackState.IDLE;
 
         bodyDef = new BodyDef();
         bodyDef.fixedRotation = true;
@@ -111,22 +116,19 @@ public abstract class CharacterBase extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        TextureRegion region;
-        stateTime += Gdx.graphics.getDeltaTime();
-
-        if (walkState == WalkState.WALKING) {
+        if (walkState == WalkState.STANDING && attackState == AttackState.IDLE) {
             if (facing == Direction.RIGHT) {
-                region = rightWalkAnimation.getKeyFrame(stateTime, true);
+                currentRegion = rightStandAnimation.getKeyFrame(stateTime, true);
             } else {
-                region = leftWalkAnimation.getKeyFrame(stateTime, true);
+                currentRegion = leftStandAnimation.getKeyFrame(stateTime, true);
             }
-        } else if (facing == Direction.RIGHT) {
-            region = rightStandAnimation.getKeyFrame(stateTime, true);
-        } else {
-            region = leftStandAnimation.getKeyFrame(stateTime, true);
+        } else if (attackState == AttackState.ATTACKING) {
+            currentRegion = leftAttackAnimation.getKeyFrame(stateTime);
+            LOG.debug("Animation finished: " + leftAttackAnimation.isAnimationFinished(stateTime));
+            if (leftAttackAnimation.isAnimationFinished(stateTime)) {stateTime = 0; attackState = AttackState.IDLE;}
         }
 
-        batch.draw(region,
+        batch.draw(currentRegion,
                 body.getPosition().x - (CHARACTER_WIDTH / 2f), body.getPosition().y - (CHARACTER_HEIGHT / 2f),
                 getOriginX(), getOriginY(),
                 getWidth(), getHeight(),
@@ -137,15 +139,23 @@ public abstract class CharacterBase extends Actor {
 
     // TODO Set current region in corresponding action method based on State
     public void moveRight() {
+        if (attackState == AttackState.ATTACKING) return;
+
         walkState = WalkState.WALKING;
         facing = Direction.RIGHT;
         body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
+
+        currentRegion = rightWalkAnimation.getKeyFrame(stateTime, true);
     }
 
     public void moveLeft() {
+        if (attackState == AttackState.ATTACKING) return;
+
         walkState = WalkState.WALKING;
         facing = Direction.LEFT;
         body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
+
+        currentRegion = leftWalkAnimation.getKeyFrame(stateTime, true);
     }
 
     public void jump() {
@@ -156,7 +166,17 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void attack() {
+        if (attackState == AttackState.IDLE) {
+            attackState = AttackState.ATTACKING;
+        }
 
+        //if (attackState == AttackState.ATTACKING && !leftAttackAnimation.isAnimationFinished(stateTime)) {
+            //currentRegion = leftAttackAnimation.getKeyFrame(stateTime, false);
+        //}
+
+        //if (leftAttackAnimation.isAnimationFinished(stateTime)) {
+        //    attackState = AttackState.IDLE;
+        //}
     }
 
     // == Abstract methods ==
@@ -166,6 +186,8 @@ public abstract class CharacterBase extends Actor {
 
     // == Private methods ==
     private void update(float delta) {
+        stateTime += Gdx.graphics.getDeltaTime();
+
         if (numFootContacts >= 1) numOfJumps = 1;
 
         walkState = WalkState.STANDING;
@@ -201,6 +223,12 @@ public abstract class CharacterBase extends Actor {
         STANDING
     }
 
+    enum AttackState {
+        ATTACKING,
+        IDLE
+    }
+
+    // Contact Listener to check if foot sensor is colliding with ground
     public class MyContactListener implements ContactListener {
         @Override
         public void beginContact(Contact contact) {
