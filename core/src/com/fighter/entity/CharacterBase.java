@@ -123,9 +123,12 @@ public abstract class CharacterBase extends Actor {
                 currentRegion = leftStandAnimation.getKeyFrame(stateTime, true);
             }
         } else if (attackState == AttackState.ATTACKING) {
-            currentRegion = leftAttackAnimation.getKeyFrame(stateTime);
-            LOG.debug("Animation finished: " + leftAttackAnimation.isAnimationFinished(stateTime));
-            if (leftAttackAnimation.isAnimationFinished(stateTime)) {stateTime = 0; attackState = AttackState.IDLE;}
+            currentRegion = (facing == Direction.LEFT) ?
+                    leftAttackAnimation.getKeyFrame(stateTime) : rightAttackAnimation.getKeyFrame(stateTime);
+
+            if (leftAttackAnimation.isAnimationFinished(stateTime)) {
+                attackState = AttackState.IDLE;
+            }
         }
 
         batch.draw(currentRegion,
@@ -159,6 +162,8 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void jump() {
+        if (attackState == AttackState.ATTACKING) return;
+
         if (numFootContacts >= 1 || numOfJumps < MAX_JUMPS) {
             ++numOfJumps;
             body.setLinearVelocity(body.getLinearVelocity().x, JUMP_FORCE);
@@ -167,6 +172,7 @@ public abstract class CharacterBase extends Actor {
 
     public void attack() {
         if (attackState == AttackState.IDLE) {
+            stateTime = 0;
             attackState = AttackState.ATTACKING;
         }
 
