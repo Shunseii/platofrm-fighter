@@ -7,7 +7,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.viewport.FitViewport;
@@ -15,6 +18,8 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fighter.FighterGame;
 import com.fighter.assets.AssetDescriptors;
 import com.fighter.config.GameConfig;
+import com.fighter.entity.CharacterBase;
+import com.fighter.entity.CharacterTest;
 import com.fighter.entity.Ground;
 import com.fighter.entity.Player;
 import com.fighter.utils.GdxUtils;
@@ -63,12 +68,15 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
         renderer = new ShapeRenderer();
 
+        CharacterBase enemy = new CharacterTest(assetManager, world);
+
         stage = new Stage(viewport, batch);
         player = new Player(assetManager, world);
 
         ground = new Ground(world);
 
         stage.addActor(player);
+        stage.addActor(enemy);
     }
 
     @Override
@@ -128,6 +136,14 @@ public class GameScreen implements Screen {
         drawDebug();
 
         renderer.end();*/
+
+        renderer.setProjectionMatrix(camera.combined);
+        renderer.begin(ShapeRenderer.ShapeType.Line);
+
+        renderer.line(player.getPosition().x + 0.75f, player.getPosition().y + 0.25f,
+                player.getPosition().x + 0.75f, player.getPosition().y - 0.25f);
+
+        renderer.end();
     }
 
     private void drawDebug() {
@@ -148,5 +164,12 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
         stage.act();
         stage.draw();
+    }
+
+    class MyRaycastCallback implements RayCastCallback {
+        @Override
+        public float reportRayFixture(Fixture fixture, Vector2 vector2, Vector2 vector21, float v) {
+            return 0;
+        }
     }
 }

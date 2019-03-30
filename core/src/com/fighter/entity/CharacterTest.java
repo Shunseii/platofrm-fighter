@@ -20,12 +20,13 @@ public class CharacterTest extends CharacterBase {
     // == Constructors ==
     public CharacterTest(AssetManager assetManager, World world) {
         super(assetManager, world);
+        fixture.setUserData(this);
     }
 
     // == Protected methods ==
     @Override
     protected void init() {
-        CHARACTER_DENSITY = 1.0f;
+        CHARACTER_DENSITY = 0.0f;
         CHARACTER_FRICTION = 1.0f;
         CHARACTER_RESTITUTION = 0.0f;
 
@@ -34,7 +35,7 @@ public class CharacterTest extends CharacterBase {
         CHARACTER_SPEED = 2.0f;
 
         MAX_JUMPS = 2;
-        JUMP_FORCE = 7.0f;
+        JUMP_FORCE = 9.0f;
 
         PolygonShape bodyShape = new PolygonShape();
         bodyShape.setAsBox(CHARACTER_WIDTH / 2f, CHARACTER_HEIGHT / 2f);

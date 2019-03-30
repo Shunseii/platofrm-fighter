@@ -110,7 +110,7 @@ public abstract class CharacterBase extends Actor {
     // == Public methods ==
     @Override
     public void act(float delta) {
-        super.act(delta);
+        //super.act(delta);
         update(delta);
     }
 
@@ -140,22 +140,21 @@ public abstract class CharacterBase extends Actor {
         );
     }
 
-    // TODO Set current region in corresponding action method based on State
     public void moveRight() {
-        if (attackState == AttackState.ATTACKING) return;
+        if (attackState == AttackState.ATTACKING && numFootContacts >= 1) return;
 
         walkState = WalkState.WALKING;
-        facing = Direction.RIGHT;
+        if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
         body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
 
         currentRegion = rightWalkAnimation.getKeyFrame(stateTime, true);
     }
 
     public void moveLeft() {
-        if (attackState == AttackState.ATTACKING) return;
+        if (attackState == AttackState.ATTACKING && numFootContacts >= 1) return;
 
         walkState = WalkState.WALKING;
-        facing = Direction.LEFT;
+        if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
         body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
 
         currentRegion = leftWalkAnimation.getKeyFrame(stateTime, true);
@@ -242,14 +241,14 @@ public abstract class CharacterBase extends Actor {
             Object fixtureUserData = contact.getFixtureA().getUserData();
             if (fixtureUserData == null) return;
 
-            if ((Integer) fixtureUserData == 3)
+            if (fixtureUserData.equals(3))
                 ++numFootContacts;
 
             //check if fixture B was the foot sensor
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
 
-            if ((Integer) fixtureUserData == 3)
+            if (fixtureUserData.equals(3))
                 ++numFootContacts;
         }
 
@@ -259,14 +258,14 @@ public abstract class CharacterBase extends Actor {
             Object fixtureUserData = contact.getFixtureA().getUserData();
             if (fixtureUserData == null) return;
 
-            if ((Integer) fixtureUserData == 3)
+            if (fixtureUserData.equals(3))
                 --numFootContacts;
 
             //check if fixture B was the foot sensor
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
 
-            if ((Integer) fixtureUserData == 3)
+            if (fixtureUserData.equals(3))
                 --numFootContacts;
         }
 
