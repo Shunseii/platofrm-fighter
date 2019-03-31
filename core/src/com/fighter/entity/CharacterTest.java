@@ -1,9 +1,11 @@
 package com.fighter.entity;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -38,14 +40,16 @@ public class CharacterTest extends CharacterBase {
     // == Protected methods ==
     @Override
     protected void init() {
-        CHARACTER_DENSITY = 1.0f;
-        CHARACTER_FRICTION = 0.0f;
+        CHARACTER_DENSITY = 0.11f;
+        CHARACTER_FRICTION = 1.0f;
         CHARACTER_RESTITUTION = 0.0f;
+        CHARACTER_DAMPING = 2.0f;
 
         CHARACTER_HEIGHT = 0.8f;
         CHARACTER_WIDTH = 0.8f;
         CHARACTER_SPEED = 2.0f;
 
+        ATTACK_RANGE = 0.70f;
         MAX_JUMPS = 2;
         JUMP_FORCE = 9.0f;
 

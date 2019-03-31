@@ -36,7 +36,9 @@ public abstract class CharacterBase extends Actor {
     protected float CHARACTER_HEIGHT;
     protected float CHARACTER_WIDTH;
     protected float CHARACTER_SPEED;
+    protected float CHARACTER_DAMPING;
 
+    protected float ATTACK_RANGE;
     protected int MAX_JUMPS;
     protected float JUMP_FORCE;
 
@@ -101,11 +103,13 @@ public abstract class CharacterBase extends Actor {
         bodyDef = new BodyDef();
         bodyDef.fixedRotation = true;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.linearDamping = CHARACTER_DAMPING;
         bodyDef.position.set(startPosition.x, startPosition.y);
 
         body = world.createBody(bodyDef);
 
         fixtureDef = new FixtureDef();
+        fixtureDef.filter.groupIndex = -2;
 
         setRegions();
         init();
@@ -133,13 +137,6 @@ public abstract class CharacterBase extends Actor {
             } else {
                 currentRegion = leftStandAnimation.getKeyFrame(stateTime, true);
             }
-        } else if (attackState == AttackState.ATTACKING) {
-            currentRegion = (facing == Direction.LEFT) ?
-                    leftAttackAnimation.getKeyFrame(stateTime) : rightAttackAnimation.getKeyFrame(stateTime);
-
-            if (leftAttackAnimation.isAnimationFinished(stateTime)) {
-                attackState = AttackState.IDLE;
-            }
         }
 
         batch.draw(currentRegion,
@@ -158,7 +155,7 @@ public abstract class CharacterBase extends Actor {
         if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
         body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
 
-        currentRegion = rightWalkAnimation.getKeyFrame(stateTime, true);
+        if (attackState == AttackState.IDLE) currentRegion = rightWalkAnimation.getKeyFrame(stateTime, true);
     }
 
     public void moveLeft() {
@@ -168,7 +165,7 @@ public abstract class CharacterBase extends Actor {
         if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
         body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
 
-        currentRegion = leftWalkAnimation.getKeyFrame(stateTime, true);
+        if (attackState == AttackState.IDLE) currentRegion = leftWalkAnimation.getKeyFrame(stateTime, true);
     }
 
     public void jump() {
@@ -186,11 +183,14 @@ public abstract class CharacterBase extends Actor {
             attackState = AttackState.ATTACKING;
         }
 
+        currentRegion = (facing == Direction.LEFT) ?
+                leftAttackAnimation.getKeyFrame(stateTime) : rightAttackAnimation.getKeyFrame(stateTime);
+
         // TODO Get attack animation frame in this method
         Animation attackAnimation = (facing == Direction.LEFT) ?
                 leftAttackAnimation : rightAttackAnimation;
 
-        if (attackAnimation.getKeyFrameIndex(stateTime) == 3) {
+        if (attackAnimation.getKeyFrameIndex(stateTime) == 3 && !attackHit) {
             int castDirection = (facing == Direction.RIGHT) ? 1 : -1;
 
             ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -199,13 +199,17 @@ public abstract class CharacterBase extends Actor {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.RED);
             shapeRenderer.line(getX(), getY(),
-                    getX() + castDirection * 1f, getY());
+                    getX() + castDirection * ATTACK_RANGE, getY());
             shapeRenderer.end();
 
             world.rayCast(rayCastCallback, getX(), getY(),
-                    getX() + castDirection * 1f, getY());
-        } else {
+                    getX() + castDirection * ATTACK_RANGE, getY());
+        } else if (attackAnimation.getKeyFrameIndex(stateTime) != 3 ) {
             attackHit = false;
+        }
+
+        if (leftAttackAnimation.isAnimationFinished(stateTime)) {
+            attackState = AttackState.IDLE;
         }
     }
 
@@ -213,10 +217,8 @@ public abstract class CharacterBase extends Actor {
         int forceDirection = (knockback == Direction.RIGHT) ? 1 : -1;
         currHealth -= damage;
 
-        LOG.debug("Health: " + currHealth);
-
         // TODO Apply force proportional to the damage taken
-        body.applyForceToCenter(forceDirection * 30f, 25f, true);
+        body.applyLinearImpulse(new Vector2(forceDirection * 0.25f, 0.25f), new Vector2(0, 0), true);
     }
 
     public boolean isJumping() {
@@ -232,12 +234,11 @@ public abstract class CharacterBase extends Actor {
     private void update(float delta) {
         stateTime += Gdx.graphics.getDeltaTime();
 
-        if (attackState == AttackState.ATTACKING && !attackHit) attack();
+        if (attackState == AttackState.ATTACKING) attack();
 
         if (!isJumping()) numOfJumps = 1;
 
         walkState = WalkState.STANDING;
-        if (!isJumping()) body.setLinearVelocity(0, body.getLinearVelocity().y);
 
         setPosition(body.getPosition().x, body.getPosition().y);
     }
