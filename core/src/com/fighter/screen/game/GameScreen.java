@@ -68,7 +68,7 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
         renderer = new ShapeRenderer();
 
-        CharacterBase enemy = new CharacterTest(assetManager, world);
+        CharacterBase enemy = new CharacterTest(assetManager, world, 7, 1);
 
         stage = new Stage(viewport, batch);
         player = new Player(assetManager, world);
@@ -136,14 +136,6 @@ public class GameScreen implements Screen {
         drawDebug();
 
         renderer.end();*/
-
-        renderer.setProjectionMatrix(camera.combined);
-        renderer.begin(ShapeRenderer.ShapeType.Line);
-
-        renderer.line(player.getPosition().x + 0.75f, player.getPosition().y + 0.25f,
-                player.getPosition().x + 0.75f, player.getPosition().y - 0.25f);
-
-        renderer.end();
     }
 
     private void drawDebug() {
@@ -164,12 +156,5 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
         stage.act();
         stage.draw();
-    }
-
-    class MyRaycastCallback implements RayCastCallback {
-        @Override
-        public float reportRayFixture(Fixture fixture, Vector2 vector2, Vector2 vector21, float v) {
-            return 0;
-        }
     }
 }

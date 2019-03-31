@@ -7,15 +7,20 @@ import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.fighter.config.GameConfig;
 
 public class Player extends Actor {
+
+    // == Constants ==
+    private float X_START = (GameConfig.WORLD_WIDTH - 1) / 2f;
+    private float Y_START = 1f;
 
     // == Attributes ==
     private CharacterBase character;
 
     // == Constructors ==
     public Player(AssetManager assetManager, World world) {
-        this.character = new CharacterTest(assetManager, world);
+        this.character = new CharacterTest(assetManager, world, X_START, Y_START);
     }
 
     // == Public methods ==
@@ -47,7 +52,7 @@ public class Player extends Actor {
             character.jump();
         }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.C)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
             character.attack();
         }
     }

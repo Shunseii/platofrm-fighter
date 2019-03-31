@@ -2,9 +2,12 @@ package com.fighter.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -15,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
@@ -25,9 +29,6 @@ public abstract class CharacterBase extends Actor {
 
     // == Constants ==
     private final Logger LOG = new Logger(CharacterBase.class.getName(), Logger.DEBUG);
-
-    protected float X_START = (GameConfig.WORLD_WIDTH - 1) / 2f;
-    protected float Y_START = 1f;
 
     protected float CHARACTER_DENSITY;
     protected float CHARACTER_FRICTION;
@@ -41,6 +42,11 @@ public abstract class CharacterBase extends Actor {
 
     // == Attributes ==
     protected AssetManager assetManager;
+
+    // Stats
+    protected int health;
+    protected int currHealth;
+    protected int attack;
 
     // Physics Body
     protected BodyDef bodyDef;
@@ -70,12 +76,16 @@ public abstract class CharacterBase extends Actor {
     protected TextureRegion rightRegion;
     protected TextureRegion currentRegion;
 
-    protected MyContactListener contactListener = new MyContactListener();
+    protected ContactListener contactListener = new MyContactListener();
+    protected RayCastCallback rayCastCallback;
+
     protected int numFootContacts;
     protected int numOfJumps;
 
+    public Batch batch1;
+
     // == Constructors ==
-    public CharacterBase(AssetManager assetManager, World world) {
+    public CharacterBase(AssetManager assetManager, World world, float xStart, float yStart) {
         this.assetManager = assetManager;
         this.world = world;
 
@@ -92,7 +102,7 @@ public abstract class CharacterBase extends Actor {
         bodyDef = new BodyDef();
         bodyDef.fixedRotation = true;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(X_START, Y_START);
+        bodyDef.position.set(xStart, yStart);
 
         body = world.createBody(bodyDef);
 
@@ -110,12 +120,14 @@ public abstract class CharacterBase extends Actor {
     // == Public methods ==
     @Override
     public void act(float delta) {
-        //super.act(delta);
+        super.act(delta);
         update(delta);
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        batch1 = batch;
+
         if (walkState == WalkState.STANDING && attackState == AttackState.IDLE) {
             if (facing == Direction.RIGHT) {
                 currentRegion = rightStandAnimation.getKeyFrame(stateTime, true);
@@ -135,7 +147,7 @@ public abstract class CharacterBase extends Actor {
                 body.getPosition().x - (CHARACTER_WIDTH / 2f), body.getPosition().y - (CHARACTER_HEIGHT / 2f),
                 getOriginX(), getOriginY(),
                 getWidth(), getHeight(),
-                getScaleX(), getScaleY(),
+                getScaleX() , getScaleY(),
                 getRotation()
         );
     }
@@ -175,6 +187,23 @@ public abstract class CharacterBase extends Actor {
             attackState = AttackState.ATTACKING;
         }
 
+        Animation attackAnimation = (facing == Direction.LEFT) ?
+                leftAttackAnimation : rightAttackAnimation;
+
+        if (attackAnimation.getKeyFrameIndex(stateTime) == 3) {
+
+            ShapeRenderer shapeRenderer = new ShapeRenderer();
+
+            shapeRenderer.setProjectionMatrix(batch1.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.line(getX(), getY(),
+                    getX() + 1f, getY());
+            shapeRenderer.end();
+
+            world.rayCast(rayCastCallback, getX(), getY(),
+                    getX() + 1f, getY());
+        }
         //if (attackState == AttackState.ATTACKING && !leftAttackAnimation.isAnimationFinished(stateTime)) {
             //currentRegion = leftAttackAnimation.getKeyFrame(stateTime, false);
         //}
@@ -182,6 +211,14 @@ public abstract class CharacterBase extends Actor {
         //if (leftAttackAnimation.isAnimationFinished(stateTime)) {
         //    attackState = AttackState.IDLE;
         //}
+    }
+
+    public void takeDamage(int damage, Direction knockback) {
+        int forceDirection = (knockback == Direction.RIGHT) ? 1 : -1;
+        currHealth -= damage;
+
+        // TODO Apply force proportional to the damage taken
+        body.applyForceToCenter(forceDirection * 1f, 2f, true);
     }
 
     // == Abstract methods ==
@@ -192,6 +229,8 @@ public abstract class CharacterBase extends Actor {
     // == Private methods ==
     private void update(float delta) {
         stateTime += Gdx.graphics.getDeltaTime();
+
+        if (attackState == AttackState.ATTACKING) attack();
 
         if (numFootContacts >= 1) numOfJumps = 1;
 

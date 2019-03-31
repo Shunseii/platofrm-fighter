@@ -4,7 +4,10 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Logger;
 import com.fighter.assets.AssetDescriptors;
@@ -15,12 +18,20 @@ public class CharacterTest extends CharacterBase {
     // == Constants ==
     private final Logger LOG = new Logger(CharacterTest.class.getName(), Logger.DEBUG);
 
+    private final int ATTACK = 5;
+    private final int HEALTH = 100;
+
     private final float FRAME_DURATION = 0.15f;
 
     // == Constructors ==
-    public CharacterTest(AssetManager assetManager, World world) {
-        super(assetManager, world);
+    public CharacterTest(AssetManager assetManager, World world, float xStart, float yStart) {
+        super(assetManager, world, xStart, yStart);
         fixture.setUserData(this);
+
+        health = HEALTH;
+        attack = ATTACK;
+        currHealth = HEALTH;
+        rayCastCallback = new MyRaycastCallback();
     }
 
     // == Protected methods ==
@@ -86,15 +97,28 @@ public class CharacterTest extends CharacterBase {
 
         leftAttackAnimation =
                 new Animation<TextureRegion>(
-                        FRAME_DURATION,
+                        FRAME_DURATION / 2f,
                         testAtlas.findRegions(RegionNames.TEST_LEFT_ATTACK),
                         Animation.PlayMode.LOOP
                 );
         rightAttackAnimation =
                 new Animation<TextureRegion>(
-                        FRAME_DURATION,
+                        FRAME_DURATION / 2f,
                         testAtlas.findRegions(RegionNames.TEST_RIGHT_ATTACK),
                         Animation.PlayMode.NORMAL
                 );
+    }
+
+    class MyRaycastCallback implements RayCastCallback {
+        @Override
+        public float reportRayFixture(Fixture fixture, Vector2 vector2, Vector2 vector21, float v) {
+            if (fixture.getUserData() instanceof CharacterBase){
+                CharacterBase hitObject = (CharacterBase) fixture.getUserData();
+
+                Direction damageDirection = (facing == Direction.RIGHT) ? Direction.RIGHT : Direction.LEFT;
+                hitObject.takeDamage(attack, damageDirection);
+            }
+            return 1;
+        }
     }
 }
