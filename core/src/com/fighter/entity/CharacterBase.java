@@ -76,24 +76,24 @@ public abstract class CharacterBase extends Actor {
     protected TextureRegion rightRegion;
     protected TextureRegion currentRegion;
 
-    protected ContactListener contactListener = new MyContactListener();
     protected RayCastCallback rayCastCallback;
 
-    protected int numFootContacts;
-    protected int numOfJumps;
+    public int numFootContacts;
 
-    public Batch batch1;
+    protected int numOfJumps;
+    protected int entityNumber;
+
+    public Batch testBatch;
 
     // == Constructors ==
-    public CharacterBase(AssetManager assetManager, World world, float xStart, float yStart) {
+    public CharacterBase(AssetManager assetManager, World world, Vector2 startPosition, int entityNumber) {
         this.assetManager = assetManager;
         this.world = world;
+        this.entityNumber = entityNumber;
 
         stateTime = 0;
         numFootContacts = 0;
         numOfJumps = 1;
-
-        world.setContactListener(contactListener);
 
         facing = Direction.RIGHT;
         walkState = WalkState.STANDING;
@@ -102,7 +102,7 @@ public abstract class CharacterBase extends Actor {
         bodyDef = new BodyDef();
         bodyDef.fixedRotation = true;
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(xStart, yStart);
+        bodyDef.position.set(startPosition.x, startPosition.y);
 
         body = world.createBody(bodyDef);
 
@@ -126,7 +126,7 @@ public abstract class CharacterBase extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        batch1 = batch;
+        testBatch = batch;
 
         if (walkState == WalkState.STANDING && attackState == AttackState.IDLE) {
             if (facing == Direction.RIGHT) {
@@ -187,6 +187,7 @@ public abstract class CharacterBase extends Actor {
             attackState = AttackState.ATTACKING;
         }
 
+        // TODO Get attack animation frame in this method
         Animation attackAnimation = (facing == Direction.LEFT) ?
                 leftAttackAnimation : rightAttackAnimation;
 
@@ -194,7 +195,7 @@ public abstract class CharacterBase extends Actor {
 
             ShapeRenderer shapeRenderer = new ShapeRenderer();
 
-            shapeRenderer.setProjectionMatrix(batch1.getProjectionMatrix());
+            shapeRenderer.setProjectionMatrix(testBatch.getProjectionMatrix());
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.RED);
             shapeRenderer.line(getX(), getY(),
@@ -204,13 +205,6 @@ public abstract class CharacterBase extends Actor {
             world.rayCast(rayCastCallback, getX(), getY(),
                     getX() + 1f, getY());
         }
-        //if (attackState == AttackState.ATTACKING && !leftAttackAnimation.isAnimationFinished(stateTime)) {
-            //currentRegion = leftAttackAnimation.getKeyFrame(stateTime, false);
-        //}
-
-        //if (leftAttackAnimation.isAnimationFinished(stateTime)) {
-        //    attackState = AttackState.IDLE;
-        //}
     }
 
     public void takeDamage(int damage, Direction knockback) {
@@ -251,7 +245,7 @@ public abstract class CharacterBase extends Actor {
         fixtureDef.density = 1.0f;
 
         footFixture = body.createFixture(fixtureDef);
-        footFixture.setUserData(3);
+        footFixture.setUserData(entityNumber);
 
         footShape.dispose();
     }
@@ -270,52 +264,5 @@ public abstract class CharacterBase extends Actor {
     enum AttackState {
         ATTACKING,
         IDLE
-    }
-
-    // Contact Listener to check if foot sensor is colliding with ground
-    public class MyContactListener implements ContactListener {
-        @Override
-        public void beginContact(Contact contact) {
-            //check if fixture A was the foot sensor
-            Object fixtureUserData = contact.getFixtureA().getUserData();
-            if (fixtureUserData == null) return;
-
-            if (fixtureUserData.equals(3))
-                ++numFootContacts;
-
-            //check if fixture B was the foot sensor
-            fixtureUserData = contact.getFixtureB().getUserData();
-            if (fixtureUserData == null) return;
-
-            if (fixtureUserData.equals(3))
-                ++numFootContacts;
-        }
-
-        @Override
-        public void endContact(Contact contact) {
-            //check if fixture A was the foot sensor
-            Object fixtureUserData = contact.getFixtureA().getUserData();
-            if (fixtureUserData == null) return;
-
-            if (fixtureUserData.equals(3))
-                --numFootContacts;
-
-            //check if fixture B was the foot sensor
-            fixtureUserData = contact.getFixtureB().getUserData();
-            if (fixtureUserData == null) return;
-
-            if (fixtureUserData.equals(3))
-                --numFootContacts;
-        }
-
-        @Override
-        public void preSolve(Contact contact, Manifold manifold) {
-
-        }
-
-        @Override
-        public void postSolve(Contact contact, ContactImpulse contactImpulse) {
-
-        }
     }
 }

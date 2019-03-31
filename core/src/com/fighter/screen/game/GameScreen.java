@@ -9,10 +9,17 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.List;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fighter.FighterGame;
@@ -45,7 +52,11 @@ public class GameScreen implements Screen {
     private World world;
     private Ground ground;
 
+    private ContactListener contactListener = new MyContactListener();
+
     private Player player;
+
+    private Array<Actor> entities = new Array<Actor>();
 
     // == Constructors ==
     public GameScreen(FighterGame game) {
@@ -62,16 +73,21 @@ public class GameScreen implements Screen {
         dbc = new DebugCameraController();
         dbc.setStartPosition(GameConfig.WORLD_CENTER_X, GameConfig.WORLD_CENTER_Y);
 
+        world.setContactListener(contactListener);
+
         font = assetManager.get(AssetDescriptors.TEST_FONT);
 
         camera = new OrthographicCamera();
         viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
         renderer = new ShapeRenderer();
 
-        CharacterBase enemy = new CharacterTest(assetManager, world, 7, 1);
+        CharacterBase enemy = new CharacterTest(assetManager, world, new Vector2(7,1),
+                entities.size + 1);
+        entities.add(enemy);
 
         stage = new Stage(viewport, batch);
-        player = new Player(assetManager, world);
+        player = new Player(assetManager, world, entities.size + 1);
+        entities.add(player);
 
         ground = new Ground(world);
 
@@ -156,5 +172,68 @@ public class GameScreen implements Screen {
         batch.setProjectionMatrix(camera.combined);
         stage.act();
         stage.draw();
+    }
+
+    private boolean lessThanOrEqual(Object o) {
+        //for (int i = entities.size; i > 0; ++i) {
+            if (o.equals(2)) return true;
+        //}
+        return false;
+    }
+
+    // == Classes ==
+
+    // Contact Listener to check if foot sensor is colliding with ground
+    public class MyContactListener implements ContactListener {
+        @Override
+        public void beginContact(Contact contact) {
+            //check if fixture A was the foot sensor
+            Object fixtureUserData = contact.getFixtureA().getUserData();
+            if (fixtureUserData == null) return;
+
+            if (lessThanOrEqual(fixtureUserData)) {
+                CharacterBase character = (CharacterBase) contact.getFixtureA().getBody().getUserData();
+                ++character.numFootContacts;
+            }
+            //check if fixture B was the foot sensor
+            fixtureUserData = contact.getFixtureB().getUserData();
+            if (fixtureUserData == null) return;
+
+            if (lessThanOrEqual(fixtureUserData)) {
+                CharacterBase character = (CharacterBase) contact.getFixtureB().getBody().getUserData();
+                ++character.numFootContacts;
+            }
+        }
+
+        @Override
+        public void endContact(Contact contact) {
+            //check if fixture A was the foot sensor
+            Object fixtureUserData = contact.getFixtureA().getUserData();
+            if (fixtureUserData == null) return;
+
+            if (lessThanOrEqual(fixtureUserData)) {
+                CharacterBase character = (CharacterBase) contact.getFixtureA().getBody().getUserData();
+                --character.numFootContacts;
+            }
+
+            //check if fixture B was the foot sensor
+            fixtureUserData = contact.getFixtureB().getUserData();
+            if (fixtureUserData == null) return;
+
+            if (lessThanOrEqual(fixtureUserData)) {
+                CharacterBase character = (CharacterBase) contact.getFixtureB().getBody().getUserData();
+                --character.numFootContacts;
+            }
+        }
+
+        @Override
+        public void preSolve(Contact contact, Manifold manifold) {
+
+        }
+
+        @Override
+        public void postSolve(Contact contact, ContactImpulse contactImpulse) {
+
+        }
     }
 }

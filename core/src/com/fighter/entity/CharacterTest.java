@@ -24,9 +24,10 @@ public class CharacterTest extends CharacterBase {
     private final float FRAME_DURATION = 0.15f;
 
     // == Constructors ==
-    public CharacterTest(AssetManager assetManager, World world, float xStart, float yStart) {
-        super(assetManager, world, xStart, yStart);
+    public CharacterTest(AssetManager assetManager, World world, Vector2 startPosition, int entityNumber) {
+        super(assetManager, world, startPosition, entityNumber);
         fixture.setUserData(this);
+        body.setUserData(this);
 
         health = HEALTH;
         attack = ATTACK;
