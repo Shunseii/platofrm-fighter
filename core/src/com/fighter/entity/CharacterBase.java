@@ -186,11 +186,11 @@ public abstract class CharacterBase extends Actor {
         currentRegion = (facing == Direction.LEFT) ?
                 leftAttackAnimation.getKeyFrame(stateTime) : rightAttackAnimation.getKeyFrame(stateTime);
 
-        // TODO Get attack animation frame in this method
         Animation attackAnimation = (facing == Direction.LEFT) ?
                 leftAttackAnimation : rightAttackAnimation;
 
         if (attackAnimation.getKeyFrameIndex(stateTime) == 3 && !attackHit) {
+            final float OFFSET = 0.1f;
             int castDirection = (facing == Direction.RIGHT) ? 1 : -1;
 
             ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -198,11 +198,11 @@ public abstract class CharacterBase extends Actor {
             shapeRenderer.setProjectionMatrix(testBatch.getProjectionMatrix());
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.RED);
-            shapeRenderer.line(getX(), getY(),
+            shapeRenderer.line(getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
                     getX() + castDirection * ATTACK_RANGE, getY());
             shapeRenderer.end();
 
-            world.rayCast(rayCastCallback, getX(), getY(),
+            world.rayCast(rayCastCallback, getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
                     getX() + castDirection * ATTACK_RANGE, getY());
         } else if (attackAnimation.getKeyFrameIndex(stateTime) != 3 ) {
             attackHit = false;
