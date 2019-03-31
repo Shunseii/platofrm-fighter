@@ -31,16 +31,11 @@ public class Player extends Actor {
         super.act(delta);
         character.act(delta);
         update();
-        LOG.debug("Foot contacts: " + character.numFootContacts);
     }
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
         character.draw(batch, parentAlpha);
-    }
-
-    public Vector2 getPosition() {
-        return new Vector2(character.getX(), character.getY());
     }
 
     // == Private methods ==

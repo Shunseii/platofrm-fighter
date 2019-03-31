@@ -192,6 +192,7 @@ public abstract class CharacterBase extends Actor {
                 leftAttackAnimation : rightAttackAnimation;
 
         if (attackAnimation.getKeyFrameIndex(stateTime) == 3) {
+            int castDirection = (facing == Direction.RIGHT) ? 1 : -1;
 
             ShapeRenderer shapeRenderer = new ShapeRenderer();
 
@@ -199,11 +200,11 @@ public abstract class CharacterBase extends Actor {
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.RED);
             shapeRenderer.line(getX(), getY(),
-                    getX() + 1f, getY());
+                    getX() + castDirection * 1f, getY());
             shapeRenderer.end();
 
             world.rayCast(rayCastCallback, getX(), getY(),
-                    getX() + 1f, getY());
+                    getX() + castDirection * 1f, getY());
         }
     }
 
@@ -212,7 +213,7 @@ public abstract class CharacterBase extends Actor {
         currHealth -= damage;
 
         // TODO Apply force proportional to the damage taken
-        body.applyForceToCenter(forceDirection * 1f, 2f, true);
+        body.applyForceToCenter(forceDirection * 30f, 25f, true);
     }
 
     // == Abstract methods ==

@@ -20,6 +20,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.List;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fighter.FighterGame;
@@ -34,6 +35,9 @@ import com.fighter.utils.ViewportUtils;
 import com.fighter.utils.debug.DebugCameraController;
 
 public class GameScreen implements Screen {
+
+    // == Constants ==
+    private static final Logger LOG = new Logger(GameScreen.class.getName(), Logger.DEBUG);
 
     // == Attributes ==
     private final FighterGame game;
@@ -175,9 +179,10 @@ public class GameScreen implements Screen {
     }
 
     private boolean lessThanOrEqual(Object o) {
-        //for (int i = entities.size; i > 0; ++i) {
+        LOG.debug("size: " + entities.size);
+        for (int i = entities.size; i > 0; ++i) {
             if (o.equals(2)) return true;
-        //}
+        }
         return false;
     }
 
@@ -191,7 +196,7 @@ public class GameScreen implements Screen {
             Object fixtureUserData = contact.getFixtureA().getUserData();
             if (fixtureUserData == null) return;
 
-            if (lessThanOrEqual(fixtureUserData)) {
+            if (fixtureUserData instanceof Integer) {
                 CharacterBase character = (CharacterBase) contact.getFixtureA().getBody().getUserData();
                 ++character.numFootContacts;
             }
@@ -199,7 +204,7 @@ public class GameScreen implements Screen {
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
 
-            if (lessThanOrEqual(fixtureUserData)) {
+            if (fixtureUserData instanceof Integer) {
                 CharacterBase character = (CharacterBase) contact.getFixtureB().getBody().getUserData();
                 ++character.numFootContacts;
             }
@@ -211,7 +216,7 @@ public class GameScreen implements Screen {
             Object fixtureUserData = contact.getFixtureA().getUserData();
             if (fixtureUserData == null) return;
 
-            if (lessThanOrEqual(fixtureUserData)) {
+            if (fixtureUserData instanceof Integer) {
                 CharacterBase character = (CharacterBase) contact.getFixtureA().getBody().getUserData();
                 --character.numFootContacts;
             }
@@ -220,7 +225,7 @@ public class GameScreen implements Screen {
             fixtureUserData = contact.getFixtureB().getUserData();
             if (fixtureUserData == null) return;
 
-            if (lessThanOrEqual(fixtureUserData)) {
+            if (fixtureUserData instanceof Integer) {
                 CharacterBase character = (CharacterBase) contact.getFixtureB().getBody().getUserData();
                 --character.numFootContacts;
             }

@@ -38,8 +38,8 @@ public class CharacterTest extends CharacterBase {
     // == Protected methods ==
     @Override
     protected void init() {
-        CHARACTER_DENSITY = 0.0f;
-        CHARACTER_FRICTION = 1.0f;
+        CHARACTER_DENSITY = 1.0f;
+        CHARACTER_FRICTION = 0.0f;
         CHARACTER_RESTITUTION = 0.0f;
 
         CHARACTER_HEIGHT = 0.8f;
