@@ -63,6 +63,7 @@ public abstract class CharacterBase extends Actor {
     protected AttackState attackState;
 
     protected float stateTime;
+    protected boolean attackHit = false;
 
     // Animations
     protected Animation<TextureRegion> leftStandAnimation;
@@ -72,8 +73,6 @@ public abstract class CharacterBase extends Actor {
     protected Animation<TextureRegion> leftAttackAnimation;
     protected Animation<TextureRegion> rightAttackAnimation;
 
-    protected TextureRegion leftRegion;
-    protected TextureRegion rightRegion;
     protected TextureRegion currentRegion;
 
     protected RayCastCallback rayCastCallback;
@@ -153,7 +152,7 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void moveRight() {
-        if (attackState == AttackState.ATTACKING && numFootContacts >= 1) return;
+        if (attackState == AttackState.ATTACKING && !isJumping()) return;
 
         walkState = WalkState.WALKING;
         if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
@@ -163,7 +162,7 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void moveLeft() {
-        if (attackState == AttackState.ATTACKING && numFootContacts >= 1) return;
+        if (attackState == AttackState.ATTACKING && !isJumping()) return;
 
         walkState = WalkState.WALKING;
         if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
@@ -175,7 +174,7 @@ public abstract class CharacterBase extends Actor {
     public void jump() {
         if (attackState == AttackState.ATTACKING) return;
 
-        if (numFootContacts >= 1 || numOfJumps < MAX_JUMPS) {
+        if (!isJumping() || numOfJumps < MAX_JUMPS) {
             ++numOfJumps;
             body.setLinearVelocity(body.getLinearVelocity().x, JUMP_FORCE);
         }
@@ -205,6 +204,8 @@ public abstract class CharacterBase extends Actor {
 
             world.rayCast(rayCastCallback, getX(), getY(),
                     getX() + castDirection * 1f, getY());
+        } else {
+            attackHit = false;
         }
     }
 
@@ -212,8 +213,14 @@ public abstract class CharacterBase extends Actor {
         int forceDirection = (knockback == Direction.RIGHT) ? 1 : -1;
         currHealth -= damage;
 
+        LOG.debug("Health: " + currHealth);
+
         // TODO Apply force proportional to the damage taken
         body.applyForceToCenter(forceDirection * 30f, 25f, true);
+    }
+
+    public boolean isJumping() {
+        return numFootContacts < 1;
     }
 
     // == Abstract methods ==
@@ -225,12 +232,12 @@ public abstract class CharacterBase extends Actor {
     private void update(float delta) {
         stateTime += Gdx.graphics.getDeltaTime();
 
-        if (attackState == AttackState.ATTACKING) attack();
+        if (attackState == AttackState.ATTACKING && !attackHit) attack();
 
-        if (numFootContacts >= 1) numOfJumps = 1;
+        if (!isJumping()) numOfJumps = 1;
 
         walkState = WalkState.STANDING;
-        if (numFootContacts >= 1) body.setLinearVelocity(0, body.getLinearVelocity().y);
+        if (!isJumping()) body.setLinearVelocity(0, body.getLinearVelocity().y);
 
         setPosition(body.getPosition().x, body.getPosition().y);
     }

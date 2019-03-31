@@ -178,16 +178,6 @@ public class GameScreen implements Screen {
         stage.draw();
     }
 
-    private boolean lessThanOrEqual(Object o) {
-        LOG.debug("size: " + entities.size);
-        for (int i = entities.size; i > 0; ++i) {
-            if (o.equals(2)) return true;
-        }
-        return false;
-    }
-
-    // == Classes ==
-
     // Contact Listener to check if foot sensor is colliding with ground
     public class MyContactListener implements ContactListener {
         @Override

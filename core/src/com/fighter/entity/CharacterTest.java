@@ -66,9 +66,6 @@ public class CharacterTest extends CharacterBase {
     protected void setRegions() {
         TextureAtlas testAtlas = assetManager.get(AssetDescriptors.TEST_PLAYER);
 
-        rightRegion = testAtlas.findRegions(RegionNames.TEST_RIGHT_STAND).get(0);
-        leftRegion = testAtlas.findRegions(RegionNames.TEST_LEFT_STAND).get(0);
-
         leftWalkAnimation =
                 new Animation<TextureRegion>(
                         FRAME_DURATION,
@@ -118,8 +115,10 @@ public class CharacterTest extends CharacterBase {
 
                 Direction damageDirection = (facing == Direction.RIGHT) ? Direction.RIGHT : Direction.LEFT;
                 hitObject.takeDamage(attack, damageDirection);
+
+                attackHit = true;
             }
-            return 1;
+            return 1f;
         }
     }
 }
