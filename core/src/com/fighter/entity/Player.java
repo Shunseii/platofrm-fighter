@@ -31,6 +31,7 @@ public class Player extends Actor {
         super.act(delta);
         character.act(delta);
         update();
+        LOG.debug("Foot contacts: " + character.numFootContacts);
     }
 
     @Override

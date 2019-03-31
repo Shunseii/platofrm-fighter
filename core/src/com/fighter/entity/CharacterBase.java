@@ -235,10 +235,10 @@ public abstract class CharacterBase extends Actor {
     }
 
     private void createFootSensor() {
-        Vector2 center = new Vector2(0.0f, -0.5f);
+        Vector2 center = new Vector2(0.0f, -0.35f);
         PolygonShape footShape = new PolygonShape();
 
-        footShape.setAsBox(0.1f, 0.1f, center, 0.0f);
+        footShape.setAsBox(CHARACTER_WIDTH / 2f, 0.05f, center, 0.0f);
 
         fixtureDef.isSensor = true;
         fixtureDef.shape = footShape;
