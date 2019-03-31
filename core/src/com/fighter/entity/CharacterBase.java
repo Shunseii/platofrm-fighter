@@ -5,30 +5,27 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
-import com.fighter.config.GameConfig;
 
 
 public abstract class CharacterBase extends Actor {
 
     // == Constants ==
     private final Logger LOG = new Logger(CharacterBase.class.getName(), Logger.DEBUG);
+
+    protected float SPRITE_HEIGHT;
+    protected float SPRITE_WIDTH;
 
     protected float CHARACTER_DENSITY;
     protected float CHARACTER_FRICTION;
@@ -117,7 +114,7 @@ public abstract class CharacterBase extends Actor {
         createFootSensor();
 
         setPosition(body.getPosition().x, body.getPosition().y);
-        setSize(CHARACTER_WIDTH, CHARACTER_HEIGHT);
+        setSize(SPRITE_WIDTH, SPRITE_HEIGHT);
     }
 
     // == Public methods ==
@@ -143,7 +140,7 @@ public abstract class CharacterBase extends Actor {
                 body.getPosition().x - (CHARACTER_WIDTH / 2f), body.getPosition().y - (CHARACTER_HEIGHT / 2f),
                 getOriginX(), getOriginY(),
                 getWidth(), getHeight(),
-                getScaleX() , getScaleY(),
+                getScaleX(), getScaleY(),
                 getRotation()
         );
     }
@@ -155,7 +152,8 @@ public abstract class CharacterBase extends Actor {
         if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
         body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
 
-        if (attackState == AttackState.IDLE) currentRegion = rightWalkAnimation.getKeyFrame(stateTime, true);
+        if (attackState == AttackState.IDLE)
+            currentRegion = rightWalkAnimation.getKeyFrame(stateTime, true);
     }
 
     public void moveLeft() {
@@ -165,7 +163,8 @@ public abstract class CharacterBase extends Actor {
         if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
         body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
 
-        if (attackState == AttackState.IDLE) currentRegion = leftWalkAnimation.getKeyFrame(stateTime, true);
+        if (attackState == AttackState.IDLE)
+            currentRegion = leftWalkAnimation.getKeyFrame(stateTime, true);
     }
 
     public void jump() {
@@ -204,7 +203,7 @@ public abstract class CharacterBase extends Actor {
 
             world.rayCast(rayCastCallback, getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
                     getX() + castDirection * ATTACK_RANGE, getY());
-        } else if (attackAnimation.getKeyFrameIndex(stateTime) != 3 ) {
+        } else if (attackAnimation.getKeyFrameIndex(stateTime) != 3) {
             attackHit = false;
         }
 
