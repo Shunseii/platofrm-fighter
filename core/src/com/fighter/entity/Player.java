@@ -50,7 +50,7 @@ public class Player extends Actor {
             character.jump();
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)) {
             character.attack();
         }
     }

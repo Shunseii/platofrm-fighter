@@ -1,11 +1,9 @@
 package com.fighter.entity;
 
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -45,7 +43,10 @@ public class CharacterTest extends CharacterBase {
         CHARACTER_RESTITUTION = 0.0f;
         CHARACTER_DAMPING = 2.0f;
 
-        CHARACTER_HEIGHT = 0.8f;
+        SPRITE_HEIGHT = 0.8f;
+        SPRITE_WIDTH = 0.8f;
+
+        CHARACTER_HEIGHT = 0.65f;
         CHARACTER_WIDTH = 0.8f;
         CHARACTER_SPEED = 2.0f;
 
@@ -114,7 +115,7 @@ public class CharacterTest extends CharacterBase {
     class MyRaycastCallback implements RayCastCallback {
         @Override
         public float reportRayFixture(Fixture fixture, Vector2 vector2, Vector2 vector21, float v) {
-            if (fixture.getUserData() instanceof CharacterBase){
+            if (fixture.getUserData() instanceof CharacterBase) {
                 CharacterBase hitObject = (CharacterBase) fixture.getUserData();
 
                 Direction damageDirection = (facing == Direction.RIGHT) ? Direction.RIGHT : Direction.LEFT;
