@@ -40,18 +40,23 @@ public class Player extends Actor {
 
     // == Private methods ==
     private void update() {
+        // TODO Detect double click
+        if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
+            character.guard();
+        }
+
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
             character.moveRight();
         } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
             character.moveLeft();
         }
 
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            character.jump();
-        }
-
         if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)) {
             character.attack();
+        }
+
+        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
+            character.jump();
         }
     }
 }

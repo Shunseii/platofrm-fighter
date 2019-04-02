@@ -146,7 +146,8 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void moveRight() {
-        if (attackState == AttackState.ATTACKING && !isJumping()) return;
+        if (attackState == AttackState.ATTACKING && !isJumping() ||
+                attackState == AttackState.GUARDING) return;
 
         walkState = WalkState.WALKING;
         if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
@@ -157,7 +158,8 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void moveLeft() {
-        if (attackState == AttackState.ATTACKING && !isJumping()) return;
+        if (attackState == AttackState.ATTACKING && !isJumping() ||
+                attackState == AttackState.GUARDING) return;
 
         walkState = WalkState.WALKING;
         if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
@@ -168,7 +170,7 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void jump() {
-        if (attackState == AttackState.ATTACKING) return;
+        if (attackState != AttackState.IDLE) return;
 
         if (!isJumping() || numOfJumps < MAX_JUMPS) {
             ++numOfJumps;
@@ -212,7 +214,13 @@ public abstract class CharacterBase extends Actor {
         }
     }
 
+    public void guard() {
+        if (attackState == AttackState.ATTACKING || isJumping()) return;
+        attackState = AttackState.GUARDING;
+    }
+
     public void takeDamage(int damage, Direction knockback) {
+        // TODO ignore knockback and reduce/ignore when guarding
         int forceDirection = (knockback == Direction.RIGHT) ? 1 : -1;
         currHealth -= damage;
 
@@ -222,6 +230,10 @@ public abstract class CharacterBase extends Actor {
 
     public boolean isJumping() {
         return numFootContacts < 1;
+    }
+
+    public boolean isGuarding() {
+        return attackState == AttackState.GUARDING;
     }
 
     // == Abstract methods ==
@@ -238,6 +250,8 @@ public abstract class CharacterBase extends Actor {
         if (!isJumping()) numOfJumps = 1;
 
         walkState = WalkState.STANDING;
+        attackState = (attackState != AttackState.ATTACKING) ?
+                AttackState.IDLE : AttackState.ATTACKING;
 
         setPosition(body.getPosition().x, body.getPosition().y);
     }
@@ -271,6 +285,7 @@ public abstract class CharacterBase extends Actor {
 
     enum AttackState {
         ATTACKING,
+        GUARDING,
         IDLE
     }
 }
