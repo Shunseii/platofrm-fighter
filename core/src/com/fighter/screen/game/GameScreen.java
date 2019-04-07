@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fighter.FighterGame;
 import com.fighter.assets.AssetDescriptors;
 import com.fighter.config.GameConfig;
+import com.fighter.entity.AI;
 import com.fighter.entity.CharacterBase;
 import com.fighter.entity.CharacterTest;
 import com.fighter.entity.Ground;
@@ -56,6 +57,7 @@ public class GameScreen implements Screen {
     private ContactListener contactListener = new MyContactListener();
 
     private Player player;
+    private AI enemy;
 
     private Array<Actor> entities = new Array<Actor>();
 
@@ -81,12 +83,11 @@ public class GameScreen implements Screen {
         camera = new OrthographicCamera();
         viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
         renderer = new ShapeRenderer();
+        stage = new Stage(viewport, batch);
 
-        CharacterBase enemy = new CharacterTest(assetManager, world, new Vector2(7, 1),
-                entities.size + 1);
+        enemy = new AI(assetManager, world, entities.size + 1);
         entities.add(enemy);
 
-        stage = new Stage(viewport, batch);
         player = new Player(assetManager, world, entities.size + 1);
         entities.add(player);
 
