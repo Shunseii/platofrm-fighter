@@ -147,7 +147,8 @@ public abstract class CharacterBase extends Actor {
 
     public void moveRight() {
         if (attackState == AttackState.ATTACKING && !isJumping() ||
-                attackState == AttackState.GUARDING) return;
+                attackState == AttackState.GUARDING ||
+                walkState == WalkState.KNOCKBACK) return;
 
         walkState = WalkState.WALKING;
         if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
@@ -159,7 +160,8 @@ public abstract class CharacterBase extends Actor {
 
     public void moveLeft() {
         if (attackState == AttackState.ATTACKING && !isJumping() ||
-                attackState == AttackState.GUARDING) return;
+                attackState == AttackState.GUARDING ||
+                walkState == WalkState.KNOCKBACK) return;
 
         walkState = WalkState.WALKING;
         if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
@@ -170,7 +172,8 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void jump() {
-        if (attackState != AttackState.IDLE) return;
+        if (attackState != AttackState.IDLE ||
+                walkState == WalkState.KNOCKBACK) return;
 
         if (!isJumping() || numOfJumps < MAX_JUMPS) {
             ++numOfJumps;
@@ -179,6 +182,11 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void attack() {
+        if (walkState == WalkState.KNOCKBACK) {
+            attackState = AttackState.IDLE;
+            return;
+        }
+
         if (attackState == AttackState.IDLE) {
             stateTime = 0;
             attackState = AttackState.ATTACKING;
@@ -220,9 +228,16 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void takeDamage(int damage, Direction knockback) {
-        // TODO ignore knockback and reduce/ignore when guarding
+        // TODO ignore knockback and reduce/ignore damage when guarding
         int forceDirection = (knockback == Direction.RIGHT) ? 1 : -1;
-        currHealth -= damage;
+        currHealth -= (isGuarding()) ? damage / 2 : damage;
+
+        if (isGuarding()) return;
+
+        if (walkState != WalkState.KNOCKBACK) {
+            walkState = WalkState.KNOCKBACK;
+            body.setLinearVelocity(0, 0);
+        }
 
         // TODO Apply force proportional to the damage taken
         body.applyLinearImpulse(new Vector2(forceDirection * 0.25f, 0.25f), new Vector2(0, 0), true);
@@ -249,7 +264,9 @@ public abstract class CharacterBase extends Actor {
 
         if (!isJumping()) numOfJumps = 1;
 
-        walkState = WalkState.STANDING;
+        if (body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0)
+            walkState = WalkState.STANDING;
+
         attackState = (attackState != AttackState.ATTACKING) ?
                 AttackState.IDLE : AttackState.ATTACKING;
 
@@ -280,7 +297,8 @@ public abstract class CharacterBase extends Actor {
 
     enum WalkState {
         WALKING,
-        STANDING
+        STANDING,
+        KNOCKBACK
     }
 
     enum AttackState {

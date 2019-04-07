@@ -17,12 +17,15 @@ public class AI extends Actor {
     private float X_START = (GameConfig.WORLD_WIDTH - 1) / 2f + 3f;
     private float Y_START = 1f;
 
+    private int sequence;
+
     // == Attributes ==
     private CharacterBase character;
 
     // == Constructors ==
     public AI(AssetManager assetManager, World world, int entityNumber) {
         this.character = new CharacterTest(assetManager, world, new Vector2(X_START, Y_START), entityNumber);
+        sequence = 0;
     }
 
     // == Public methods ==
@@ -41,6 +44,11 @@ public class AI extends Actor {
     // == Private methods ==
     private void update() {
         // TODO implement AI actions here
-        character.jump();
+        if (sequence == 0) {
+            character.moveLeft();
+            ++sequence;
+        } else {
+            character.attack();
+        }
     }
 }
