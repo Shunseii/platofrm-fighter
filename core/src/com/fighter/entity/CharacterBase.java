@@ -228,7 +228,6 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void takeDamage(int damage, Direction knockback) {
-        // TODO ignore knockback and reduce/ignore damage when guarding
         int forceDirection = (knockback == Direction.RIGHT) ? 1 : -1;
         currHealth -= (isGuarding()) ? damage / 2 : damage;
 
