@@ -239,7 +239,7 @@ public abstract class CharacterBase extends Actor {
         }
 
         // TODO Apply force proportional to the damage taken
-        body.applyLinearImpulse(new Vector2(forceDirection * 0.25f, 0.25f), new Vector2(0, 0), true);
+        body.applyLinearImpulse(new Vector2(forceDirection * 0.15f, 0.25f), new Vector2(0, 0), true);
     }
 
     public boolean isJumping() {
@@ -259,7 +259,8 @@ public abstract class CharacterBase extends Actor {
     private void update(float delta) {
         stateTime += Gdx.graphics.getDeltaTime();
 
-        body.setLinearVelocity(0, body.getLinearVelocity().y);
+        if (body.getLinearVelocity().y == 0)
+            body.setLinearVelocity(0, body.getLinearVelocity().y);
 
         if (attackState == AttackState.ATTACKING) attack();
 
@@ -279,7 +280,7 @@ public abstract class CharacterBase extends Actor {
         Vector2 center = new Vector2(0.0f, -0.35f);
         PolygonShape footShape = new PolygonShape();
 
-        footShape.setAsBox(CHARACTER_WIDTH / 2f, 0.05f, center, 0.0f);
+        footShape.setAsBox(CHARACTER_WIDTH / 3f, 0.03f, center, 0.0f);
 
         fixtureDef.isSensor = true;
         fixtureDef.shape = footShape;

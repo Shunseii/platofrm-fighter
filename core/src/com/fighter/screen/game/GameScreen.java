@@ -94,7 +94,7 @@ public class GameScreen implements Screen {
         entities.add(player);
 
         ground = new Ground(world);
-        platform = new Platform(world, 2, 4);
+        platform = new Platform(world, 2, 2);
 
         stage.addActor(player);
         stage.addActor(enemy);

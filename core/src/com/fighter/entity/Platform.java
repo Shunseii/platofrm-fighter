@@ -16,17 +16,20 @@ public class Platform {
     private final float PLATFORM_WIDTH = 1f;
     private final float PLATFORM_HEIGHT = 1f;
 
-    private float xPosition;
-    private float yPosition;
+    // Offset to place body at bottom left instead of center
+    private final float OFFSET = 0.5f;
 
     // == Attributes ==
     private BodyDef bodyDef;
     private Body body;
 
+    private float xPosition;
+    private float yPosition;
+
     // == Constructors ==
     public Platform(World world, float xPos, float yPos) {
-        xPosition = xPos;
-        yPosition = yPos;
+        xPosition = xPos - OFFSET;
+        yPosition = yPos + OFFSET;
 
         bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.StaticBody;
