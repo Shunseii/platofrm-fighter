@@ -259,10 +259,13 @@ public abstract class CharacterBase extends Actor {
     private void update(float delta) {
         stateTime += Gdx.graphics.getDeltaTime();
 
+        body.setLinearVelocity(0, body.getLinearVelocity().y);
+
         if (attackState == AttackState.ATTACKING) attack();
 
         if (!isJumping()) numOfJumps = 1;
 
+        // If character is not moving, they are standing
         if (body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0)
             walkState = WalkState.STANDING;
 

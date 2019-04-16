@@ -27,6 +27,7 @@ import com.fighter.entity.AI;
 import com.fighter.entity.CharacterBase;
 import com.fighter.entity.CharacterTest;
 import com.fighter.entity.Ground;
+import com.fighter.entity.Platform;
 import com.fighter.entity.Player;
 import com.fighter.utils.GdxUtils;
 import com.fighter.utils.ViewportUtils;
@@ -53,6 +54,7 @@ public class GameScreen implements Screen {
 
     private World world;
     private Ground ground;
+    private Platform platform;
 
     private ContactListener contactListener = new MyContactListener();
 
@@ -92,6 +94,7 @@ public class GameScreen implements Screen {
         entities.add(player);
 
         ground = new Ground(world);
+        platform = new Platform(world, 2, 4);
 
         stage.addActor(player);
         stage.addActor(enemy);
@@ -108,6 +111,7 @@ public class GameScreen implements Screen {
         renderGameplay();
 
         ground.render(renderer, viewport, camera);
+        platform.render(renderer, viewport, camera);
 
         renderDebug();
         debugRenderer.render(world, camera.combined);

@@ -39,7 +39,7 @@ public class CharacterTest extends CharacterBase {
     @Override
     protected void init() {
         CHARACTER_DENSITY = 0.11f;
-        CHARACTER_FRICTION = 1.0f;
+        CHARACTER_FRICTION = 0.0f;
         CHARACTER_RESTITUTION = 0.0f;
         CHARACTER_DAMPING = 2.0f;
 
