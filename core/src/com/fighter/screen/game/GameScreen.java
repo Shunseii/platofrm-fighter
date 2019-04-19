@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
@@ -25,10 +24,10 @@ import com.fighter.assets.AssetDescriptors;
 import com.fighter.config.GameConfig;
 import com.fighter.entity.AI;
 import com.fighter.entity.CharacterBase;
-import com.fighter.entity.CharacterTest;
 import com.fighter.entity.Ground;
 import com.fighter.entity.Platform;
 import com.fighter.entity.Player;
+import com.fighter.map.MapLayout;
 import com.fighter.utils.GdxUtils;
 import com.fighter.utils.ViewportUtils;
 import com.fighter.utils.debug.DebugCameraController;
@@ -58,6 +57,7 @@ public class GameScreen implements Screen {
 
     private ContactListener contactListener = new MyContactListener();
 
+    private MapLayout map;
     private Player player;
     private AI enemy;
 
@@ -93,9 +93,13 @@ public class GameScreen implements Screen {
         player = new Player(assetManager, world, entities.size + 1);
         entities.add(player);
 
+        map = new MapLayout(game, world);
+
+        // TODO Move ground and platforms to maplayout
         ground = new Ground(world);
         platform = new Platform(world, 2, 2);
 
+        stage.addActor(map.getBackground());
         stage.addActor(player);
         stage.addActor(enemy);
     }

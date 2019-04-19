@@ -54,6 +54,7 @@ public class LoadingScreen extends ScreenAdapter {
         assetManager.finishLoading();
 
         assetManager.load(AssetDescriptors.TEST_PLAYER);
+        assetManager.load(AssetDescriptors.TEST_MAP);
 
         font = assetManager.get(AssetDescriptors.TEST_FONT);
     }
