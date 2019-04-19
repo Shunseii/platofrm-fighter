@@ -13,8 +13,8 @@ public class Platform {
 
     // == Constants ==
     private final float PLATFORM_DENSITY = 0.0f;
-    private final float PLATFORM_WIDTH = 1f;
-    private final float PLATFORM_HEIGHT = 1f;
+    private final float DEFAULT_WIDTH = 1f;
+    private final float DEFAULT_HEIGHT = 1f;
 
     // Offset to place body at bottom left instead of center
     private final float OFFSET = 0.5f;
@@ -23,27 +23,34 @@ public class Platform {
     private BodyDef bodyDef;
     private Body body;
 
+    private World world;
+
     private float xPosition;
     private float yPosition;
+    private float width;
+    private float height;
 
     // == Constructors ==
     public Platform(World world, float xPos, float yPos) {
+        this.world = world;
+
         xPosition = xPos - OFFSET;
         yPosition = yPos + OFFSET;
 
-        bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.StaticBody;
-        bodyDef.position.set(new Vector2(xPosition, yPosition));
+        this.width = DEFAULT_WIDTH;
+        this.height = DEFAULT_HEIGHT;
 
-        body = world.createBody(bodyDef);
+        init();
+    }
 
-        PolygonShape bodyShape = new PolygonShape();
-        bodyShape.setAsBox(PLATFORM_WIDTH / 2f, PLATFORM_HEIGHT / 2f);
+    public Platform(World world, float xPos, float yPos, float width, float height) {
+        this.world = world;
 
-        body.createFixture(bodyShape, PLATFORM_DENSITY);
-        body.setUserData(this);
+        xPosition = xPos - OFFSET;
+        yPosition = yPos + OFFSET;
 
-        bodyShape.dispose();
+        this.width = width;
+        this.height = height;
     }
 
     // == Public methods ==
@@ -53,9 +60,26 @@ public class Platform {
         renderer.setProjectionMatrix(camera.combined);
         renderer.begin(ShapeRenderer.ShapeType.Filled);
 
-        renderer.rect(xPosition - PLATFORM_WIDTH / 2f, yPosition - PLATFORM_HEIGHT / 2f,
-                PLATFORM_WIDTH, PLATFORM_HEIGHT);
+        renderer.rect(xPosition - width / 2f, yPosition - height / 2f,
+                width, height);
 
         renderer.end();
+    }
+
+    // == Private Methods ==
+    private void init() {
+        bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.position.set(new Vector2(xPosition, yPosition));
+
+        body = world.createBody(bodyDef);
+
+        PolygonShape bodyShape = new PolygonShape();
+        bodyShape.setAsBox(width / 2f, height / 2f);
+
+        body.createFixture(bodyShape, PLATFORM_DENSITY);
+        body.setUserData(this);
+
+        bodyShape.dispose();
     }
 }
