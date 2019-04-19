@@ -12,5 +12,8 @@ public class RegionNames {
     public static final String TEST_LEFT_ATTACK = "test_left_attack";
     public static final String TEST_RIGHT_ATTACK = "test_right_attack";
 
+    // == TestMap Atlas ==
+    public static final String TEST_BACKGROUND = "test_background";
+
     private RegionNames() {}
 }

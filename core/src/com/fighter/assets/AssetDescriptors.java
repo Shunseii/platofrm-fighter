@@ -11,6 +11,9 @@ public class AssetDescriptors {
     public static final AssetDescriptor<TextureAtlas> TEST_PLAYER =
             new AssetDescriptor<TextureAtlas>(AssetPaths.TEST_PLAYER, TextureAtlas.class);
 
+    public static final AssetDescriptor<TextureAtlas> TEST_MAP =
+            new AssetDescriptor<TextureAtlas>(AssetPaths.TEST_MAP, TextureAtlas.class);
+
     public static final AssetDescriptor<BitmapFont> TEST_FONT =
             new AssetDescriptor<BitmapFont>(AssetPaths.TEST_FONT, BitmapFont.class);
 

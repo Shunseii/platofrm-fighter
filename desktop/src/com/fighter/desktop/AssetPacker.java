@@ -18,5 +18,10 @@ public class AssetPacker {
                 ASSETS_PATH + "/gameplay",
                 "test-player"
         );
+
+        TexturePacker.process(settings,
+                RAW_ASSETS_PATH + "/map",
+                ASSETS_PATH + "/map",
+                "test-map");
     }
 }
