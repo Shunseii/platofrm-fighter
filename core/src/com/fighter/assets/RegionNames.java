@@ -14,6 +14,7 @@ public class RegionNames {
 
     // == TestMap Atlas ==
     public static final String TEST_BACKGROUND = "test_background";
+    public static final String TEST_TILE = "test_tile";
 
     private RegionNames() {}
 }

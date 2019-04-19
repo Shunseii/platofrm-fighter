@@ -42,7 +42,7 @@ public class Ground extends Actor {
     }
 
     // == Public methods ==
-    public void render(ShapeRenderer renderer, Viewport viewport, OrthographicCamera camera) {
+    public void renderDebug(ShapeRenderer renderer, Viewport viewport, OrthographicCamera camera) {
         viewport.apply();
 
         renderer.setProjectionMatrix(camera.combined);

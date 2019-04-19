@@ -95,11 +95,7 @@ public class GameScreen implements Screen {
 
         map = new MapLayout(game, world);
 
-        // TODO Move ground and platforms to maplayout
-        ground = new Ground(world);
-        platform = new Platform(world, 2, 2);
-
-        stage.addActor(map.getBackground());
+        map.addToStage(stage);
         stage.addActor(player);
         stage.addActor(enemy);
     }
@@ -114,8 +110,7 @@ public class GameScreen implements Screen {
         viewport.apply();
         renderGameplay();
 
-        ground.render(renderer, viewport, camera);
-        platform.render(renderer, viewport, camera);
+        //map.renderDebug(renderer, viewport, camera);
 
         renderDebug();
         debugRenderer.render(world, camera.combined);
