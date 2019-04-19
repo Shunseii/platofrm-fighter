@@ -180,8 +180,8 @@ public class GameScreen implements Screen {
 
     private void renderGameplay() {
         batch.setProjectionMatrix(camera.combined);
-        stage.act();
         stage.draw();
+        stage.act();
     }
 
     // Contact Listener to check if foot sensor is colliding with ground
