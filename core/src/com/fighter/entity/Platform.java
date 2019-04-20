@@ -99,8 +99,6 @@ public class Platform extends Actor {
         TextureAtlas mapAtlas = assetManager.get(AssetPaths.TEST_MAP);
         TextureRegion tile = mapAtlas.findRegion(RegionNames.TEST_TILE);
 
-        // TODO find an effective way to split sqr, the interval at which texture will repeat
-
         // If width is < 1, draw texture with that width
         if (width < 1) {
             drawPlatform(batch, tile, xStart, yStart, width, height);
