@@ -38,7 +38,7 @@ public class MapLayout {
         background.setSize(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT);
 
         ground = new Ground(world);
-        platform_1 = new Platform(game, world, 2f, 2f, 3f, 0.5f);
+        platform_1 = new Platform(game, world, 2f, 2f, 2f, 0.45f);
     }
 
     // == Public Methods ==

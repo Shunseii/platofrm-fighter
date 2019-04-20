@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -30,9 +31,6 @@ public class Platform extends Actor {
     private final float DEFAULT_WIDTH = 0.5f;
     private final float DEFAULT_HEIGHT = 0.5f;
 
-    // Offset to place body at bottom left instead of center
-    private final float OFFSET = 0.5f;
-
     // == Attributes ==
     private BodyDef bodyDef;
     private Body body;
@@ -51,11 +49,11 @@ public class Platform extends Actor {
         this.game = game;
         this.world = world;
 
-        xPosition = xPos - OFFSET;
-        yPosition = yPos + OFFSET;
-
         this.width = DEFAULT_WIDTH;
         this.height = DEFAULT_HEIGHT;
+
+        xPosition = xPos - (this.width / 2f);
+        yPosition = yPos + (this.height / 2f);
 
         init();
     }
@@ -64,11 +62,11 @@ public class Platform extends Actor {
         this.game = game;
         this.world = world;
 
-        xPosition = xPos - OFFSET;
-        yPosition = yPos + OFFSET;
-
         this.width = width;
         this.height = height;
+
+        xPosition = xPos + (this.width / 2f);
+        yPosition = yPos + (this.height / 2f);
 
         init();
     }
@@ -101,26 +99,37 @@ public class Platform extends Actor {
         TextureAtlas mapAtlas = assetManager.get(AssetPaths.TEST_MAP);
         TextureRegion tile = mapAtlas.findRegion(RegionNames.TEST_TILE);
 
-        // TODO repeat texture
-        /*
-        batch.draw(
-                tile,
-                xPosition - (width / 2f), yPosition - (height / 2f),
-                getOriginX(), getOriginY(),
-                width, height,
-                getScaleX(), getScaleY(),
-                getRotation()
-        );*/
-        LOG.debug("Size: " + tile.getRegionWidth());
+        // TODO find an effective way to split sqr, the interval at which texture will repeat
 
-        for (float i = xStart; i < width; ++i) {
-            batch.draw(tile,
-                    i, yStart,
-                    getOriginX(), getOriginY(),
-                    1f, height,
-                    getScaleX(), getScaleY(),
-                    getRotation()
-            );
+        // If width is < 1, draw texture with that width
+        if (width < 1) {
+            drawPlatform(batch, tile, xStart, yStart, width, height);
+            return;
+        }
+
+        // If width > 1, repeatedly draw texture at given breakpoint
+        float breakPoint = width / (width + 1);
+
+        for (float i = xStart; i < (width + xStart); i += breakPoint) {
+            float currWidth = breakPoint;
+            float diffNextIteration = (width + xStart) - (i + breakPoint);
+            float tolerance = 0.001f;
+
+            // Check if remaining width of next iteration is < breakPoint
+            if (diffNextIteration < breakPoint - tolerance) {
+                // If width of next iteration is close to currWidth (diff of 0.2f),
+                // then draw at that width in next iteration
+                if (Math.abs(diffNextIteration - currWidth) <= 0.2f) {
+                    drawPlatform(batch, tile, i, yStart, currWidth, height);
+                    continue;
+                }
+
+                // If width of next iteration is too small, add it to current breakPoint
+                currWidth = breakPoint + diffNextIteration;
+                drawPlatform(batch, tile, i, yStart, currWidth, height);
+                return;
+            }
+            drawPlatform(batch, tile, i, yStart, currWidth, height);
         }
     }
 
@@ -134,5 +143,17 @@ public class Platform extends Actor {
                 width, height);
 
         renderer.end();
+    }
+
+    // == Private Methods ==
+    private void drawPlatform(Batch batch, TextureRegion region,
+                              float x, float y, float width, float height) {
+        batch.draw(region,
+                x, y,
+                getOriginX(), getOriginY(),
+                width, height,
+                getScaleX(), getScaleY(),
+                getRotation()
+        );
     }
 }
