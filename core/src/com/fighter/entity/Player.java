@@ -16,6 +16,7 @@ public class Player extends Actor {
 
     // == Constants ==
     private static final Logger LOG = new Logger(Player.class.getName(), Logger.DEBUG);
+
     private float X_START = (GameConfig.WORLD_WIDTH - 1) / 2f;
     private float Y_START = 1f;
 
