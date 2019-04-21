@@ -3,7 +3,9 @@ package com.fighter.entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
@@ -36,6 +38,10 @@ public class Player extends Actor {
     @Override
     public void draw(Batch batch, float parentAlpha) {
         character.draw(batch, parentAlpha);
+    }
+
+    public void drawHealth(Batch batch, ShapeRenderer renderer, Camera textCamera, Camera camera) {
+        character.drawHealth(batch, renderer, textCamera, camera);
     }
 
     // == Private methods ==

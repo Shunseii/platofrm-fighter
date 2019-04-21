@@ -24,8 +24,6 @@ import com.fighter.assets.AssetDescriptors;
 import com.fighter.config.GameConfig;
 import com.fighter.entity.AI;
 import com.fighter.entity.CharacterBase;
-import com.fighter.entity.Ground;
-import com.fighter.entity.Platform;
 import com.fighter.entity.Player;
 import com.fighter.map.MapLayout;
 import com.fighter.utils.GdxUtils;
@@ -42,6 +40,8 @@ public class GameScreen implements Screen {
     private final AssetManager assetManager;
 
     private OrthographicCamera camera;
+    private OrthographicCamera hudCamera;
+    private Viewport hudViewport;
     private Viewport viewport;
     private SpriteBatch batch;
     private Stage stage;
@@ -52,8 +52,6 @@ public class GameScreen implements Screen {
     private Box2DDebugRenderer debugRenderer;
 
     private World world;
-    private Ground ground;
-    private Platform platform;
 
     private ContactListener contactListener = new MyContactListener();
 
@@ -83,10 +81,12 @@ public class GameScreen implements Screen {
         font = assetManager.get(AssetDescriptors.TEST_FONT);
 
         camera = new OrthographicCamera();
+        hudCamera = new OrthographicCamera();
+
+        hudViewport = new FitViewport(GameConfig.HUD_WIDTH, GameConfig.HUD_HEIGHT, hudCamera);
         viewport = new FitViewport(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
         renderer = new ShapeRenderer();
         stage = new Stage(viewport, batch);
-
         enemy = new AI(assetManager, world, entities.size + 1);
         entities.add(enemy);
 
@@ -105,7 +105,6 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         dbc.handleDebugInput(delta);
         dbc.applyTo(camera);
-
         GdxUtils.clearScreen();
 
         viewport.apply();
@@ -123,6 +122,7 @@ public class GameScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height, true);
+        hudViewport.update(width, height, true);
         //ViewportUtils.debugPixelPerUnit(viewport);
     }
 
@@ -176,8 +176,14 @@ public class GameScreen implements Screen {
 
     private void renderGameplay() {
         batch.setProjectionMatrix(camera.combined);
+
         stage.draw();
         stage.act();
+
+        batch.setProjectionMatrix(hudCamera.combined);
+
+        enemy.drawHealth(batch, renderer, hudCamera, camera);
+        player.drawHealth(batch, renderer, hudCamera, camera);
     }
 
     // Contact Listener to check if foot sensor is colliding with ground

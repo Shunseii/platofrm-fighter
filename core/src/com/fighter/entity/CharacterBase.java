@@ -2,9 +2,11 @@ package com.fighter.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -17,6 +19,7 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
+import com.fighter.assets.AssetDescriptors;
 
 
 public abstract class CharacterBase extends Actor {
@@ -126,6 +129,9 @@ public abstract class CharacterBase extends Actor {
 
     @Override
     public void draw(Batch batch, float parentAlpha) {
+        float bodyX = body.getPosition().x - (CHARACTER_WIDTH / 2f);
+        float bodyY = body.getPosition().y - (CHARACTER_HEIGHT / 2f);
+
         testBatch = batch;
 
         if (walkState == WalkState.STANDING && attackState == AttackState.IDLE) {
@@ -137,12 +143,39 @@ public abstract class CharacterBase extends Actor {
         }
 
         batch.draw(currentRegion,
-                body.getPosition().x - (CHARACTER_WIDTH / 2f), body.getPosition().y - (CHARACTER_HEIGHT / 2f),
+                bodyX, bodyY,
                 getOriginX(), getOriginY(),
                 getWidth(), getHeight(),
                 getScaleX(), getScaleY(),
                 getRotation()
         );
+    }
+
+    public void drawHealth(Batch batch, ShapeRenderer renderer, Camera textCamera, Camera camera) {
+        float healthPercent = (float) currHealth / health;
+
+        float ratew = textCamera.viewportWidth / camera.viewportWidth;
+        float rateh = textCamera.viewportHeight / camera.viewportHeight;
+
+        float x = textCamera.position.x - (camera.position.x - body.getPosition().x) * ratew;
+        float y = textCamera.position.y - (camera.position.y - body.getPosition().y) * rateh;
+
+        Color oldColor = renderer.getColor();
+
+        renderer.setProjectionMatrix(textCamera.combined);
+        renderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        renderer.setColor(Color.RED);
+        renderer.box(x - 35f, y + 30f, 0,
+                CHARACTER_WIDTH * 85f, CHARACTER_HEIGHT * 10f, 0);
+
+        renderer.setColor(Color.GREEN);
+        renderer.box(x - 35f, y + 30f, 0,
+                CHARACTER_WIDTH * 85f * healthPercent, CHARACTER_HEIGHT * 10f, 0);
+
+        renderer.end();
+
+        renderer.setColor(oldColor);
     }
 
     public void moveRight() {
@@ -230,6 +263,8 @@ public abstract class CharacterBase extends Actor {
     public void takeDamage(int damage, Direction knockback) {
         int forceDirection = (knockback == Direction.RIGHT) ? 1 : -1;
         currHealth -= (isGuarding()) ? damage / 2 : damage;
+
+        if (currHealth < 0) currHealth = 0;
 
         if (isGuarding()) return;
 
