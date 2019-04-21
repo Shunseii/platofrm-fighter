@@ -6,15 +6,22 @@ filter: Nearest,Nearest
 repeat: none
 test_background
   rotate: false
-  xy: 2, 28
+  xy: 2, 32
   size: 512, 256
   orig: 512, 256
+  offset: 0, 0
+  index: -1
+test_platform
+  rotate: false
+  xy: 516, 264
+  size: 24, 24
+  orig: 24, 24
   offset: 0, 0
   index: -1
 test_tile
   rotate: false
   xy: 2, 2
-  size: 24, 24
-  orig: 24, 24
+  size: 24, 28
+  orig: 24, 28
   offset: 0, 0
   index: -1

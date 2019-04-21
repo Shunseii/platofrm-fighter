@@ -2,27 +2,24 @@ package com.fighter.entity;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
-import com.badlogic.gdx.scenes.scene2d.utils.TiledDrawable;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fighter.FighterGame;
 import com.fighter.assets.AssetPaths;
 import com.fighter.assets.RegionNames;
-import com.fighter.config.GameConfig;
 
+
+// TODO Add drawPlatform code to a common separate class
 public class Platform extends Actor {
 
     // == Constants ==
@@ -52,7 +49,7 @@ public class Platform extends Actor {
         this.width = DEFAULT_WIDTH;
         this.height = DEFAULT_HEIGHT;
 
-        xPosition = xPos - (this.width / 2f);
+        xPosition = xPos + (this.width / 2f);
         yPosition = yPos + (this.height / 2f);
 
         init();
@@ -97,7 +94,7 @@ public class Platform extends Actor {
         float yStart = yPosition - (height / 2f);
 
         TextureAtlas mapAtlas = assetManager.get(AssetPaths.TEST_MAP);
-        TextureRegion tile = mapAtlas.findRegion(RegionNames.TEST_TILE);
+        TextureRegion tile = mapAtlas.findRegion(RegionNames.TEST_PLATFORM);
 
         // If width is < 1, draw texture with that width
         if (width < 1) {
