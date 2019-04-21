@@ -95,9 +95,10 @@ public class GameScreen implements Screen {
 
         map = new MapLayout(game, world);
 
-        map.addToStage(stage);
+        stage.addActor(map.getBackground());
         stage.addActor(player);
         stage.addActor(enemy);
+        map.addToStage(stage);
     }
 
     @Override

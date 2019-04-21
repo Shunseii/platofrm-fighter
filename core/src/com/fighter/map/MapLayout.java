@@ -2,7 +2,6 @@ package com.fighter.map;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -16,7 +15,6 @@ import com.fighter.config.GameConfig;
 import com.fighter.entity.Ground;
 import com.fighter.entity.Platform;
 
-// TODO finish MapLayout class
 public class MapLayout {
 
     // == Attributes ==
@@ -37,7 +35,7 @@ public class MapLayout {
         background = new Image(mapAtlas.findRegion(RegionNames.TEST_BACKGROUND));
         background.setSize(GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT);
 
-        ground = new Ground(world);
+        ground = new Ground(game, world);
         platform_1 = new Platform(game, world, 2f, 2f, 2f, 0.45f);
     }
 
@@ -47,8 +45,12 @@ public class MapLayout {
         platform_1.renderDebug(renderer, viewport, camera);
     }
 
+    public Image getBackground() {
+        return background;
+    }
+
     public void addToStage(Stage stage) {
-        stage.addActor(background);
+        //stage.addActor(background);
         stage.addActor(ground);
         stage.addActor(platform_1);
     }
