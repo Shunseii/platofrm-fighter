@@ -1,5 +1,6 @@
 package com.fighter.entity;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
@@ -20,6 +21,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
 import com.fighter.assets.AssetDescriptors;
+import com.fighter.config.GameConfig;
 
 
 public abstract class CharacterBase extends Actor {
@@ -127,6 +129,7 @@ public abstract class CharacterBase extends Actor {
         update(delta);
     }
 
+    // TODO Fix sprite width/height and center sprites
     @Override
     public void draw(Batch batch, float parentAlpha) {
         float bodyX = body.getPosition().x - (CHARACTER_WIDTH / 2f);
@@ -142,10 +145,13 @@ public abstract class CharacterBase extends Actor {
             }
         }
 
+        SPRITE_HEIGHT = currentRegion.getRegionHeight() / (GameConfig.WORLD_HEIGHT * 6.5f);
+        SPRITE_WIDTH = currentRegion.getRegionWidth() / (GameConfig.WORLD_WIDTH * 5);
+
         batch.draw(currentRegion,
-                bodyX, bodyY,
+                bodyX - SPRITE_WIDTH / 2f, bodyY,
                 getOriginX(), getOriginY(),
-                getWidth(), getHeight(),
+                SPRITE_WIDTH, SPRITE_HEIGHT,//getWidth(), getHeight(),
                 getScaleX(), getScaleY(),
                 getRotation()
         );
@@ -166,11 +172,11 @@ public abstract class CharacterBase extends Actor {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
 
         renderer.setColor(Color.RED);
-        renderer.box(x - 35f, y + 30f, 0,
+        renderer.box(x - 35f, y + 40f, 0,
                 CHARACTER_WIDTH * 85f, CHARACTER_HEIGHT * 10f, 0);
 
         renderer.setColor(Color.GREEN);
-        renderer.box(x - 35f, y + 30f, 0,
+        renderer.box(x - 35f, y + 40f, 0,
                 CHARACTER_WIDTH * 85f * healthPercent, CHARACTER_HEIGHT * 10f, 0);
 
         renderer.end();
@@ -187,8 +193,9 @@ public abstract class CharacterBase extends Actor {
         if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
         body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
 
-        if (attackState == AttackState.IDLE)
+        if (attackState == AttackState.IDLE) {
             currentRegion = rightWalkAnimation.getKeyFrame(stateTime, true);
+        }
     }
 
     public void moveLeft() {
@@ -200,8 +207,9 @@ public abstract class CharacterBase extends Actor {
         if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
         body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
 
-        if (attackState == AttackState.IDLE)
+        if (attackState == AttackState.IDLE) {
             currentRegion = leftWalkAnimation.getKeyFrame(stateTime, true);
+        }
     }
 
     public void jump() {
@@ -231,6 +239,7 @@ public abstract class CharacterBase extends Actor {
         Animation attackAnimation = (facing == Direction.LEFT) ?
                 leftAttackAnimation : rightAttackAnimation;
 
+        // TODO Change into protected method
         if (attackAnimation.getKeyFrameIndex(stateTime) == 3 && !attackHit) {
             final float OFFSET = 0.1f;
             int castDirection = (facing == Direction.RIGHT) ? 1 : -1;
@@ -325,6 +334,21 @@ public abstract class CharacterBase extends Actor {
         footFixture.setUserData(entityNumber);
 
         footShape.dispose();
+    }
+
+    class MyRaycastCallback implements RayCastCallback {
+        @Override
+        public float reportRayFixture(Fixture fixture, Vector2 vector2, Vector2 vector21, float v) {
+            if (fixture.getUserData() instanceof CharacterBase) {
+                CharacterBase hitObject = (CharacterBase) fixture.getUserData();
+
+                Direction damageDirection = (facing == Direction.RIGHT) ? Direction.RIGHT : Direction.LEFT;
+                hitObject.takeDamage(attack, damageDirection);
+
+                attackHit = true;
+            }
+            return 1f;
+        }
     }
 
     // == Enums ==

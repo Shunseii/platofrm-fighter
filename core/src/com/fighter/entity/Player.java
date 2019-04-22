@@ -25,7 +25,7 @@ public class Player extends Actor {
 
     // == Constructors ==
     public Player(AssetManager assetManager, World world, int entityNumber) {
-        this.character = new CharacterTest(assetManager, world, new Vector2(X_START, Y_START), entityNumber);
+        this.character = new CharacterTestKnight(assetManager, world, new Vector2(X_START, Y_START), entityNumber);
     }
 
     // == Public methods ==

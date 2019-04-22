@@ -112,7 +112,7 @@ public class CharacterTest extends CharacterBase {
                 );
     }
 
-    class MyRaycastCallback implements RayCastCallback {
+    /*class MyRaycastCallback implements RayCastCallback {
         @Override
         public float reportRayFixture(Fixture fixture, Vector2 vector2, Vector2 vector21, float v) {
             if (fixture.getUserData() instanceof CharacterBase) {
@@ -125,5 +125,5 @@ public class CharacterTest extends CharacterBase {
             }
             return 1f;
         }
-    }
+    }*/
 }

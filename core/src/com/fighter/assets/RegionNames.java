@@ -12,6 +12,12 @@ public class RegionNames {
     public static final String TEST_LEFT_ATTACK = "test_left_attack";
     public static final String TEST_RIGHT_ATTACK = "test_right_attack";
 
+    public static final String KNIGHT_IDLE_LEFT = "knight_idle_left";
+    public static final String KNIGHT_IDLE_RIGHT = "knight_idle_right";
+
+    public static final String KNIGHT_ATTACK1_LEFT = "knight_attack1_left";
+    public static final String KNIGHT_ATTACK1_RIGHT = "knight_attack1_right";
+
     // == TestMap Atlas ==
     public static final String TEST_BACKGROUND = "test_background";
     public static final String TEST_TILE = "test_tile";
