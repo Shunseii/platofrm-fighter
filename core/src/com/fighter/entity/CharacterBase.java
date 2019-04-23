@@ -163,18 +163,27 @@ public abstract class CharacterBase extends Actor {
         float x = textCamera.position.x - (camera.position.x - body.getPosition().x) * ratew;
         float y = textCamera.position.y - (camera.position.y - body.getPosition().y) * rateh;
 
+        float healthX = x - 35f;
+        float healthY = y + 55f;
+        float healthWidth = 65f;
+        float healthHeight = 10f;
+
         Color oldColor = renderer.getColor();
 
         renderer.setProjectionMatrix(textCamera.combined);
         renderer.begin(ShapeRenderer.ShapeType.Filled);
 
+        renderer.setColor(Color.BLACK);
+        renderer.box(healthX - 1f, healthY - 1f, 0,
+                healthWidth + 2f, healthHeight + 2f, 0);
+
         renderer.setColor(Color.RED);
-        //renderer.box(x - 35f, y + 40f, 0,
-        //        65f, CHARACTER_HEIGHT * 10f, 0);
+        renderer.box(healthX, healthY, 0,
+                healthWidth, healthHeight, 0);
 
         renderer.setColor(Color.GREEN);
-        //renderer.box(x - 35f, y + 40f, 0,
-        //        65f * healthPercent, CHARACTER_HEIGHT * 10f, 0);
+        renderer.box(healthX, healthY, 0,
+                healthWidth * healthPercent, healthHeight, 0);
 
         renderer.end();
 
