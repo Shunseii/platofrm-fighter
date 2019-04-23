@@ -72,13 +72,13 @@ public class CharacterTestKnight extends CharacterBase {
         leftWalkAnimation =
                 new Animation<TextureRegion>(
                         FRAME_DURATION,
-                        testAtlas.findRegions(/*RegionNames.TEST_LEFT_WALK*/RegionNames.KNIGHT_IDLE_LEFT),
+                        testAtlas.findRegions(RegionNames.KNIGHT_RUN_LEFT),
                         Animation.PlayMode.LOOP
                 );
         rightWalkAnimation =
                 new Animation<TextureRegion>(
                         FRAME_DURATION,
-                        testAtlas.findRegions(/*RegionNames.TEST_RIGHT_WALK*/RegionNames.KNIGHT_IDLE_RIGHT),
+                        testAtlas.findRegions(RegionNames.KNIGHT_RUN_RIGHT),
                         Animation.PlayMode.LOOP
                 );
 

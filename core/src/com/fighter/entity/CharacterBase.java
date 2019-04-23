@@ -149,7 +149,7 @@ public abstract class CharacterBase extends Actor {
         SPRITE_WIDTH = currentRegion.getRegionWidth() / (GameConfig.WORLD_WIDTH * 5);
 
         batch.draw(currentRegion,
-                bodyX - SPRITE_WIDTH / 2f, bodyY,
+                bodyX - SPRITE_WIDTH / 3f, bodyY,
                 getOriginX(), getOriginY(),
                 SPRITE_WIDTH, SPRITE_HEIGHT,//getWidth(), getHeight(),
                 getScaleX(), getScaleY(),
