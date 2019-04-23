@@ -41,8 +41,8 @@ public class Player extends Actor {
         character.draw(batch, parentAlpha);
     }
 
-    public void drawHealth(Batch batch, ShapeRenderer renderer, Camera textCamera, Camera camera) {
-        character.drawHealth(batch, renderer, textCamera, camera);
+    public void drawHealth(ShapeRenderer renderer, Camera textCamera, Camera camera) {
+        character.drawHealth(renderer, textCamera, camera);
     }
 
     // == Private methods ==

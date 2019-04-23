@@ -182,8 +182,8 @@ public class GameScreen implements Screen {
 
         batch.setProjectionMatrix(hudCamera.combined);
 
-        enemy.drawHealth(batch, renderer, hudCamera, camera);
-        player.drawHealth(batch, renderer, hudCamera, camera);
+        enemy.drawHealth(renderer, hudCamera, camera);
+        player.drawHealth(renderer, hudCamera, camera);
     }
 
     // Contact Listener to check if foot sensor is colliding with ground

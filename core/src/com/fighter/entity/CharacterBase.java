@@ -129,10 +129,9 @@ public abstract class CharacterBase extends Actor {
         update(delta);
     }
 
-    // TODO Fix sprite width/height and center sprites
     @Override
     public void draw(Batch batch, float parentAlpha) {
-        float bodyX = body.getPosition().x - (CHARACTER_WIDTH / 2f);
+        float bodyX = body.getPosition().x - (SPRITE_WIDTH / 2f);
         float bodyY = body.getPosition().y - (CHARACTER_HEIGHT / 2f);
 
         testBatch = batch;
@@ -145,19 +144,17 @@ public abstract class CharacterBase extends Actor {
             }
         }
 
-        SPRITE_HEIGHT = currentRegion.getRegionHeight() / (GameConfig.WORLD_HEIGHT * 6.5f);
-        SPRITE_WIDTH = currentRegion.getRegionWidth() / (GameConfig.WORLD_WIDTH * 5);
-
         batch.draw(currentRegion,
-                bodyX - SPRITE_WIDTH / 3f, bodyY,
+                bodyX, bodyY,
                 getOriginX(), getOriginY(),
-                SPRITE_WIDTH, SPRITE_HEIGHT,//getWidth(), getHeight(),
+                getWidth(), getHeight(),
                 getScaleX(), getScaleY(),
                 getRotation()
         );
     }
 
-    public void drawHealth(Batch batch, ShapeRenderer renderer, Camera textCamera, Camera camera) {
+    // TODO fix health bar positioning and size
+    public void drawHealth(ShapeRenderer renderer, Camera textCamera, Camera camera) {
         float healthPercent = (float) currHealth / health;
 
         float ratew = textCamera.viewportWidth / camera.viewportWidth;
@@ -172,12 +169,12 @@ public abstract class CharacterBase extends Actor {
         renderer.begin(ShapeRenderer.ShapeType.Filled);
 
         renderer.setColor(Color.RED);
-        renderer.box(x - 35f, y + 40f, 0,
-                CHARACTER_WIDTH * 85f, CHARACTER_HEIGHT * 10f, 0);
+        //renderer.box(x - 35f, y + 40f, 0,
+        //        65f, CHARACTER_HEIGHT * 10f, 0);
 
         renderer.setColor(Color.GREEN);
-        renderer.box(x - 35f, y + 40f, 0,
-                CHARACTER_WIDTH * 85f * healthPercent, CHARACTER_HEIGHT * 10f, 0);
+        //renderer.box(x - 35f, y + 40f, 0,
+        //        65f * healthPercent, CHARACTER_HEIGHT * 10f, 0);
 
         renderer.end();
 
@@ -236,28 +233,7 @@ public abstract class CharacterBase extends Actor {
         currentRegion = (facing == Direction.LEFT) ?
                 leftAttackAnimation.getKeyFrame(stateTime) : rightAttackAnimation.getKeyFrame(stateTime);
 
-        Animation attackAnimation = (facing == Direction.LEFT) ?
-                leftAttackAnimation : rightAttackAnimation;
-
-        // TODO Change into protected method
-        if (attackAnimation.getKeyFrameIndex(stateTime) == 3 && !attackHit) {
-            final float OFFSET = 0.1f;
-            int castDirection = (facing == Direction.RIGHT) ? 1 : -1;
-
-            ShapeRenderer shapeRenderer = new ShapeRenderer();
-
-            shapeRenderer.setProjectionMatrix(testBatch.getProjectionMatrix());
-            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-            shapeRenderer.setColor(Color.RED);
-            shapeRenderer.line(getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
-                    getX() + castDirection * ATTACK_RANGE, getY());
-            shapeRenderer.end();
-
-            world.rayCast(rayCastCallback, getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
-                    getX() + castDirection * ATTACK_RANGE, getY());
-        } else if (attackAnimation.getKeyFrameIndex(stateTime) != 3) {
-            attackHit = false;
-        }
+        attackRaycast();
 
         if (leftAttackAnimation.isAnimationFinished(stateTime)) {
             attackState = AttackState.IDLE;
@@ -296,7 +272,7 @@ public abstract class CharacterBase extends Actor {
 
     // == Abstract methods ==
     abstract void setRegions();
-
+    abstract void attackRaycast();
     abstract void init();
 
     // == Private methods ==
@@ -321,10 +297,10 @@ public abstract class CharacterBase extends Actor {
     }
 
     private void createFootSensor() {
-        Vector2 center = new Vector2(0.0f, -0.35f);
+        Vector2 center = new Vector2(0.0f, - CHARACTER_HEIGHT / 2f);
         PolygonShape footShape = new PolygonShape();
 
-        footShape.setAsBox(CHARACTER_WIDTH / 3f, 0.03f, center, 0.0f);
+        footShape.setAsBox(CHARACTER_WIDTH / 2.1f, 0.03f, center, 0.0f);
 
         fixtureDef.isSensor = true;
         fixtureDef.shape = footShape;

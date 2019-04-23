@@ -1,9 +1,11 @@
 package com.fighter.entity;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -41,14 +43,14 @@ public class CharacterTestKnight extends CharacterBase {
         CHARACTER_RESTITUTION = 0.0f;
         CHARACTER_DAMPING = 2.0f;
 
-        SPRITE_HEIGHT = 1.0f;
-        SPRITE_WIDTH = 0.8f;
+        SPRITE_HEIGHT = 1.7f;
+        SPRITE_WIDTH = 2.0f;
 
-        CHARACTER_HEIGHT = 0.65f;
-        CHARACTER_WIDTH = 0.8f;
+        CHARACTER_HEIGHT = 1.1f;
+        CHARACTER_WIDTH = 0.7f;
         CHARACTER_SPEED = 2.0f;
 
-        ATTACK_RANGE = 0.70f;
+        ATTACK_RANGE = 0.85f;
         MAX_JUMPS = 2;
         JUMP_FORCE = 7.0f;
 
@@ -108,8 +110,31 @@ public class CharacterTestKnight extends CharacterBase {
                         testAtlas.findRegions(RegionNames.KNIGHT_ATTACK1_RIGHT),
                         Animation.PlayMode.NORMAL
                 );
+    }
 
-        SPRITE_HEIGHT = leftStandAnimation.getKeyFrame(0).getRegionHeight();
-        SPRITE_WIDTH = leftStandAnimation.getKeyFrame(0).getRegionWidth();
+    @Override
+    protected void attackRaycast() {
+        Animation attackAnimation = (facing == Direction.LEFT) ?
+                leftAttackAnimation : rightAttackAnimation;
+
+        if (attackAnimation.getKeyFrameIndex(stateTime) >= 6 && attackAnimation.getKeyFrameIndex(stateTime) <= 9
+                && !attackHit) {
+            final float OFFSET = 0.1f;
+            int castDirection = (facing == Direction.RIGHT) ? 1 : -1;
+
+            ShapeRenderer shapeRenderer = new ShapeRenderer();
+
+            shapeRenderer.setProjectionMatrix(testBatch.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.line(getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
+                    getX() + castDirection * ATTACK_RANGE, getY());
+            shapeRenderer.end();
+
+            world.rayCast(rayCastCallback, getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
+                    getX() + castDirection * ATTACK_RANGE, getY());
+        } else if (attackAnimation.getKeyFrameIndex(stateTime) < 6 || attackAnimation.getKeyFrameIndex(stateTime) > 9) {
+            attackHit = false;
+        }
     }
 }

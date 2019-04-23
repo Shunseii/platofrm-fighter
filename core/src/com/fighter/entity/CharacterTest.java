@@ -1,9 +1,11 @@
 package com.fighter.entity;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -112,18 +114,28 @@ public class CharacterTest extends CharacterBase {
                 );
     }
 
-    /*class MyRaycastCallback implements RayCastCallback {
-        @Override
-        public float reportRayFixture(Fixture fixture, Vector2 vector2, Vector2 vector21, float v) {
-            if (fixture.getUserData() instanceof CharacterBase) {
-                CharacterBase hitObject = (CharacterBase) fixture.getUserData();
+    @Override
+    protected void attackRaycast() {
+        Animation attackAnimation = (facing == Direction.LEFT) ?
+                leftAttackAnimation : rightAttackAnimation;
 
-                Direction damageDirection = (facing == Direction.RIGHT) ? Direction.RIGHT : Direction.LEFT;
-                hitObject.takeDamage(attack, damageDirection);
+        if (attackAnimation.getKeyFrameIndex(stateTime) == 3 && !attackHit) {
+            final float OFFSET = 0.1f;
+            int castDirection = (facing == Direction.RIGHT) ? 1 : -1;
 
-                attackHit = true;
-            }
-            return 1f;
+            ShapeRenderer shapeRenderer = new ShapeRenderer();
+
+            shapeRenderer.setProjectionMatrix(testBatch.getProjectionMatrix());
+            shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+            shapeRenderer.setColor(Color.RED);
+            shapeRenderer.line(getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
+                    getX() + castDirection * ATTACK_RANGE, getY());
+            shapeRenderer.end();
+
+            world.rayCast(rayCastCallback, getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
+                    getX() + castDirection * ATTACK_RANGE, getY());
+        } else if (attackAnimation.getKeyFrameIndex(stateTime) != 3) {
+            attackHit = false;
         }
-    }*/
+    }
 }
