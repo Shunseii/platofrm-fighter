@@ -181,6 +181,7 @@ public abstract class CharacterBase extends Actor {
         renderer.setProjectionMatrix(textCamera.combined);
         renderer.begin(ShapeRenderer.ShapeType.Filled);
 
+        // Outline
         renderer.setColor(Color.BLACK);
         renderer.box(healthX - 1f, healthY - 1f, 0,
                 healthWidth + 2f, healthHeight + 2f, 0);
@@ -231,6 +232,7 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void jump() {
+        // Jump if not already jumping or if have additional jumps remaining in air
         if (!isJumping() || numOfJumps < MAX_JUMPS) {
             walkState = WalkState.STANDING;
             stateTime = 0;
@@ -239,24 +241,23 @@ public abstract class CharacterBase extends Actor {
         }
     }
 
-    public void startJump() {
-        if (attackState != AttackState.IDLE ||
-                walkState == WalkState.KNOCKBACK) return;
-    }
-
     public void attack() {
+        // Can't attack while knocked back
         if (walkState == WalkState.KNOCKBACK) {
             attackState = AttackState.IDLE;
             return;
         }
 
+        // Start attack animation and stop moving if not already attacking
         if (attackState == AttackState.IDLE) {
             stateTime = 0;
+            walkState = WalkState.STANDING;
             attackState = AttackState.ATTACKING;
         }
 
         currentRegion = (facing == Direction.LEFT) ?
-                leftAttackAnimation.getKeyFrame(stateTime) : rightAttackAnimation.getKeyFrame(stateTime);
+                leftAttackAnimation.getKeyFrame(stateTime) :
+                rightAttackAnimation.getKeyFrame(stateTime);
 
         attackRaycast();
 
@@ -266,7 +267,9 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void guard() {
+        // Can't guard while jumping or attacking
         if (attackState == AttackState.ATTACKING || isJumping()) return;
+
         attackState = AttackState.GUARDING;
     }
 
@@ -299,11 +302,13 @@ public abstract class CharacterBase extends Actor {
     abstract void setRegions();
     abstract void attackRaycast();
     abstract void init();
+    abstract void startJump();
 
     // == Private methods ==
     private void update(float delta) {
         stateTime += Gdx.graphics.getDeltaTime();
 
+        // If not in the air, set x velocity to 0
         if (body.getLinearVelocity().y == 0)
             body.setLinearVelocity(0, body.getLinearVelocity().y);
 
@@ -315,10 +320,13 @@ public abstract class CharacterBase extends Actor {
         if (body.getLinearVelocity().x == 0 && !isJumping())
             walkState = WalkState.STANDING;
 
+        // Reset guard state every iteration
         attackState = (attackState != AttackState.ATTACKING) ?
                 AttackState.IDLE : AttackState.ATTACKING;
 
+        // Check if jumping
         if (isJumping() && attackState == AttackState.IDLE && walkState != WalkState.KNOCKBACK) {
+            // check if in air or starting jump
             if (walkState != WalkState.JUMPSTART) {
                 currentRegion = (facing == Direction.LEFT) ?
                         leftJumpAnimation.getKeyFrame(stateTime, true) :

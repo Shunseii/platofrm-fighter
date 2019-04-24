@@ -70,7 +70,9 @@ public class CharacterTestKnight extends CharacterBase {
     // == Public Methods ==
     @Override
     public void startJump() {
-        super.startJump();
+        if (attackState != AttackState.IDLE ||
+                walkState == WalkState.KNOCKBACK)
+            return;
 
         if (walkState != WalkState.JUMPSTART) {
             if (isJumping()) {
