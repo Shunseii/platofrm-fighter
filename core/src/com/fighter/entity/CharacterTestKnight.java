@@ -35,7 +35,7 @@ public class CharacterTestKnight extends CharacterBase {
         rayCastCallback = new MyRaycastCallback();
     }
 
-    // == Protected Methods ==
+    // == Init ==
     @Override
     protected void init() {
         CHARACTER_DENSITY = 0.11f;
@@ -67,6 +67,33 @@ public class CharacterTestKnight extends CharacterBase {
         bodyShape.dispose();
     }
 
+    // == Public Methods ==
+    @Override
+    public void startJump() {
+        super.startJump();
+
+        if (walkState != WalkState.JUMPSTART) {
+            if (isJumping()) {
+                jump();
+            } else {
+                stateTime = 0;
+            }
+        }
+
+        Animation<TextureRegion> startAnimation = (facing == Direction.RIGHT) ?
+                rightJumpstartAnimation : leftJumpstartAnimation;
+
+        if (numFootContacts < 1) return;
+
+        walkState = WalkState.JUMPSTART;
+        currentRegion = startAnimation.getKeyFrame(stateTime, false);
+
+        if (startAnimation.getKeyFrameIndex(stateTime) == 4) {
+            jump();
+        }
+    }
+
+    // == Protected Methods ==
     @Override
     protected void setRegions() {
         TextureAtlas testAtlas = assetManager.get(AssetDescriptors.TEST_PLAYER);
@@ -102,12 +129,40 @@ public class CharacterTestKnight extends CharacterBase {
                 new Animation<TextureRegion>(
                         FRAME_DURATION / 2f,
                         testAtlas.findRegions(RegionNames.KNIGHT_ATTACK1_LEFT),
-                        Animation.PlayMode.LOOP
+                        Animation.PlayMode.NORMAL
                 );
         rightAttackAnimation =
                 new Animation<TextureRegion>(
                         FRAME_DURATION / 2f,
                         testAtlas.findRegions(RegionNames.KNIGHT_ATTACK1_RIGHT),
+                        Animation.PlayMode.NORMAL
+                );
+
+        leftJumpAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.KNIGHT_JUMP_LEFT),
+                        Animation.PlayMode.LOOP
+                );
+
+        rightJumpAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.KNIGHT_JUMP_RIGHT),
+                        Animation.PlayMode.LOOP
+                );
+
+        leftJumpstartAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION / 5f,
+                        testAtlas.findRegions(RegionNames.KNIGHT_JUMPSTART_LEFT),
+                        Animation.PlayMode.NORMAL
+                );
+
+        rightJumpstartAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION / 5f,
+                        testAtlas.findRegions(RegionNames.KNIGHT_JUMPSTART_RIGHT),
                         Animation.PlayMode.NORMAL
                 );
     }

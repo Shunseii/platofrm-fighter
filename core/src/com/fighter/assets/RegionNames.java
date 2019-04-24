@@ -21,6 +21,11 @@ public class RegionNames {
     public static final String KNIGHT_RUN_LEFT = "knight_run_left";
     public static final String KNIGHT_RUN_RIGHT = "knight_run_right";
 
+    public static final String KNIGHT_JUMP_LEFT = "knight_jump_left";
+    public static final String KNIGHT_JUMP_RIGHT = "knight_jump_right";
+    public static final String KNIGHT_JUMPSTART_RIGHT = "knight_jumpstart_right";
+    public static final String KNIGHT_JUMPSTART_LEFT = "knight_jumpstart_left";
+
     // == TestMap Atlas ==
     public static final String TEST_BACKGROUND = "test_background";
     public static final String TEST_TILE = "test_tile";

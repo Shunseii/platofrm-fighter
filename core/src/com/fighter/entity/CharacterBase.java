@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -76,6 +77,10 @@ public abstract class CharacterBase extends Actor {
     protected Animation<TextureRegion> rightWalkAnimation;
     protected Animation<TextureRegion> leftAttackAnimation;
     protected Animation<TextureRegion> rightAttackAnimation;
+    protected Animation<TextureRegion> leftJumpAnimation;
+    protected Animation<TextureRegion> rightJumpAnimation;
+    protected Animation<TextureRegion> leftJumpstartAnimation;
+    protected Animation<TextureRegion> rightJumpstartAnimation;
 
     protected TextureRegion currentRegion;
 
@@ -88,6 +93,8 @@ public abstract class CharacterBase extends Actor {
 
     public Batch testBatch;
 
+
+    // TODO Add Guard, hit, and death animations
     // == Constructors ==
     public CharacterBase(AssetManager assetManager, World world, Vector2 startPosition, int entityNumber) {
         this.assetManager = assetManager;
@@ -120,6 +127,8 @@ public abstract class CharacterBase extends Actor {
 
         setPosition(body.getPosition().x, body.getPosition().y);
         setSize(SPRITE_WIDTH, SPRITE_HEIGHT);
+
+        currentRegion = rightStandAnimation.getKeyFrame(0f, true);
     }
 
     // == Public methods ==
@@ -136,7 +145,7 @@ public abstract class CharacterBase extends Actor {
 
         testBatch = batch;
 
-        if (walkState == WalkState.STANDING && attackState == AttackState.IDLE) {
+        if (walkState == WalkState.STANDING && attackState == AttackState.IDLE && !isJumping()) {
             if (facing == Direction.RIGHT) {
                 currentRegion = rightStandAnimation.getKeyFrame(stateTime, true);
             } else {
@@ -153,7 +162,6 @@ public abstract class CharacterBase extends Actor {
         );
     }
 
-    // TODO fix health bar positioning and size
     public void drawHealth(ShapeRenderer renderer, Camera textCamera, Camera camera) {
         float healthPercent = (float) currHealth / health;
 
@@ -195,11 +203,13 @@ public abstract class CharacterBase extends Actor {
                 attackState == AttackState.GUARDING ||
                 walkState == WalkState.KNOCKBACK) return;
 
-        walkState = WalkState.WALKING;
+        if (walkState != WalkState.JUMPSTART)
+            walkState = WalkState.WALKING;
+
         if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
         body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
 
-        if (attackState == AttackState.IDLE) {
+        if (attackState == AttackState.IDLE && !isJumping()) {
             currentRegion = rightWalkAnimation.getKeyFrame(stateTime, true);
         }
     }
@@ -209,23 +219,29 @@ public abstract class CharacterBase extends Actor {
                 attackState == AttackState.GUARDING ||
                 walkState == WalkState.KNOCKBACK) return;
 
-        walkState = WalkState.WALKING;
+        if (walkState != WalkState.JUMPSTART)
+            walkState = WalkState.WALKING;
+
         if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
         body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
 
-        if (attackState == AttackState.IDLE) {
+        if (attackState == AttackState.IDLE && !isJumping()) {
             currentRegion = leftWalkAnimation.getKeyFrame(stateTime, true);
         }
     }
 
     public void jump() {
-        if (attackState != AttackState.IDLE ||
-                walkState == WalkState.KNOCKBACK) return;
-
         if (!isJumping() || numOfJumps < MAX_JUMPS) {
+            walkState = WalkState.STANDING;
+            stateTime = 0;
             ++numOfJumps;
             body.setLinearVelocity(body.getLinearVelocity().x, JUMP_FORCE);
         }
+    }
+
+    public void startJump() {
+        if (attackState != AttackState.IDLE ||
+                walkState == WalkState.KNOCKBACK) return;
     }
 
     public void attack() {
@@ -272,7 +288,7 @@ public abstract class CharacterBase extends Actor {
     }
 
     public boolean isJumping() {
-        return numFootContacts < 1;
+        return numFootContacts < 1 || walkState == WalkState.JUMPSTART;
     }
 
     public boolean isGuarding() {
@@ -296,11 +312,21 @@ public abstract class CharacterBase extends Actor {
         if (!isJumping()) numOfJumps = 1;
 
         // If character is not moving, they are standing
-        if (body.getLinearVelocity().x == 0 && body.getLinearVelocity().y == 0)
+        if (body.getLinearVelocity().x == 0 && !isJumping())
             walkState = WalkState.STANDING;
 
         attackState = (attackState != AttackState.ATTACKING) ?
                 AttackState.IDLE : AttackState.ATTACKING;
+
+        if (isJumping() && attackState == AttackState.IDLE && walkState != WalkState.KNOCKBACK) {
+            if (walkState != WalkState.JUMPSTART) {
+                currentRegion = (facing == Direction.LEFT) ?
+                        leftJumpAnimation.getKeyFrame(stateTime, true) :
+                        rightJumpAnimation.getKeyFrame(stateTime, true);
+            } else {
+                startJump();
+            }
+        }
 
         setPosition(body.getPosition().x, body.getPosition().y);
     }
@@ -345,7 +371,8 @@ public abstract class CharacterBase extends Actor {
     enum WalkState {
         WALKING,
         STANDING,
-        KNOCKBACK
+        KNOCKBACK,
+        JUMPSTART
     }
 
     enum AttackState {

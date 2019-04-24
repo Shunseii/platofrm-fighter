@@ -63,7 +63,7 @@ public class Player extends Actor {
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            character.jump();
+            character.startJump();
         }
     }
 }

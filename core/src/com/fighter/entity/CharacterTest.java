@@ -15,6 +15,8 @@ import com.badlogic.gdx.utils.Logger;
 import com.fighter.assets.AssetDescriptors;
 import com.fighter.assets.RegionNames;
 
+import javax.swing.plaf.synth.Region;
+
 public class CharacterTest extends CharacterBase {
 
     // == Constants ==
@@ -37,7 +39,7 @@ public class CharacterTest extends CharacterBase {
         rayCastCallback = new MyRaycastCallback();
     }
 
-    // == Protected methods ==
+    // == Init ==
     @Override
     protected void init() {
         CHARACTER_DENSITY = 0.11f;
@@ -69,6 +71,14 @@ public class CharacterTest extends CharacterBase {
         bodyShape.dispose();
     }
 
+    // == Public Methods ==
+    @Override
+    public void startJump() {
+        super.startJump();
+        jump();
+    }
+
+    // == Protected Methods ==
     @Override
     protected void setRegions() {
         TextureAtlas testAtlas = assetManager.get(AssetDescriptors.TEST_PLAYER);
@@ -104,12 +114,40 @@ public class CharacterTest extends CharacterBase {
                 new Animation<TextureRegion>(
                         FRAME_DURATION / 2f,
                         testAtlas.findRegions(RegionNames.TEST_LEFT_ATTACK),
-                        Animation.PlayMode.LOOP
+                        Animation.PlayMode.NORMAL
                 );
         rightAttackAnimation =
                 new Animation<TextureRegion>(
                         FRAME_DURATION / 2f,
                         testAtlas.findRegions(RegionNames.TEST_RIGHT_ATTACK),
+                        Animation.PlayMode.NORMAL
+                );
+
+        leftJumpAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_LEFT_STAND),
+                        Animation.PlayMode.LOOP
+                );
+
+        rightJumpAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_RIGHT_STAND),
+                        Animation.PlayMode.LOOP
+                );
+
+        leftJumpstartAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_LEFT_STAND),
+                        Animation.PlayMode.NORMAL
+                );
+
+        rightJumpstartAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_RIGHT_STAND),
                         Animation.PlayMode.NORMAL
                 );
     }
