@@ -96,7 +96,8 @@ public abstract class CharacterBase extends Actor {
     public Batch testBatch;
 
 
-    // TODO Add Guard, hit, and death animations
+    // TODO Add Hit, and death animations
+    // TODO Add iframes
     // == Constructors ==
     public CharacterBase(AssetManager assetManager, World world, Vector2 startPosition, int entityNumber) {
         this.assetManager = assetManager;

@@ -15,6 +15,7 @@ import com.fighter.config.GameConfig;
 import com.fighter.entity.Ground;
 import com.fighter.entity.Platform;
 
+// TODO Make abstract and create subclasses
 public class MapLayout {
 
     // == Attributes ==
