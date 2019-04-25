@@ -81,6 +81,8 @@ public abstract class CharacterBase extends Actor {
     protected Animation<TextureRegion> rightJumpAnimation;
     protected Animation<TextureRegion> leftJumpstartAnimation;
     protected Animation<TextureRegion> rightJumpstartAnimation;
+    protected Animation<TextureRegion> rightGuardAnimation;
+    protected Animation<TextureRegion> leftGuardAnimation;
 
     protected TextureRegion currentRegion;
 
@@ -269,6 +271,10 @@ public abstract class CharacterBase extends Actor {
     public void guard() {
         // Can't guard while jumping or attacking
         if (attackState == AttackState.ATTACKING || isJumping()) return;
+
+        currentRegion = (facing == Direction.RIGHT) ?
+                rightGuardAnimation.getKeyFrame(stateTime, true) :
+                leftGuardAnimation.getKeyFrame(stateTime, true);
 
         attackState = AttackState.GUARDING;
     }

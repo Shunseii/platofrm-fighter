@@ -43,16 +43,18 @@ public class CharacterTestKnight extends CharacterBase {
         CHARACTER_RESTITUTION = 0.0f;
         CHARACTER_DAMPING = 2.0f;
 
-        SPRITE_HEIGHT = 1.7f;
-        SPRITE_WIDTH = 2.0f;
+        SPRITE_HEIGHT = 1.8f;
+        SPRITE_WIDTH = 2.3f;
 
+        // Physics body properties
         CHARACTER_HEIGHT = 1.1f;
         CHARACTER_WIDTH = 0.7f;
+
         CHARACTER_SPEED = 2.0f;
 
         ATTACK_RANGE = 0.85f;
         MAX_JUMPS = 2;
-        JUMP_FORCE = 7.0f;
+        JUMP_FORCE = 8.0f;
 
         PolygonShape bodyShape = new PolygonShape();
         bodyShape.setAsBox(CHARACTER_WIDTH / 2f, CHARACTER_HEIGHT / 2f);
@@ -166,6 +168,20 @@ public class CharacterTestKnight extends CharacterBase {
                         FRAME_DURATION / 5f,
                         testAtlas.findRegions(RegionNames.KNIGHT_JUMPSTART_RIGHT),
                         Animation.PlayMode.NORMAL
+                );
+
+        rightGuardAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.KNIGHT_GUARD_RIGHT),
+                        Animation.PlayMode.LOOP
+                );
+
+        leftGuardAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.KNIGHT_GUARD_LEFT),
+                        Animation.PlayMode.LOOP
                 );
     }
 

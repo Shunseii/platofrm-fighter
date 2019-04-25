@@ -81,6 +81,9 @@ public class CharacterTest extends CharacterBase {
         jump();
     }
 
+    @Override
+    public void guard() {}
+
     // == Protected Methods ==
     @Override
     protected void setRegions() {
@@ -152,6 +155,20 @@ public class CharacterTest extends CharacterBase {
                         FRAME_DURATION,
                         testAtlas.findRegions(RegionNames.TEST_RIGHT_STAND),
                         Animation.PlayMode.NORMAL
+                );
+
+        rightGuardAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_RIGHT_STAND),
+                        Animation.PlayMode.LOOP
+                );
+
+        leftGuardAnimation =
+                new Animation<TextureRegion>(
+                        FRAME_DURATION,
+                        testAtlas.findRegions(RegionNames.TEST_LEFT_STAND),
+                        Animation.PlayMode.LOOP
                 );
     }
 
