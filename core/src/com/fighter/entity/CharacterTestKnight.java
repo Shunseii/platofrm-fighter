@@ -77,8 +77,9 @@ public class CharacterTestKnight extends CharacterBase {
             return;
 
         if (walkState != WalkState.JUMPSTART) {
-            if (isJumping()) {
+            if (isJumping() || walkState == WalkState.WALKING) {
                 jump();
+                return;
             } else {
                 stateTime = 0;
             }
@@ -158,14 +159,14 @@ public class CharacterTestKnight extends CharacterBase {
 
         leftJumpstartAnimation =
                 new Animation<TextureRegion>(
-                        FRAME_DURATION / 5f,
+                        FRAME_DURATION / 6f,
                         testAtlas.findRegions(RegionNames.KNIGHT_JUMPSTART_LEFT),
                         Animation.PlayMode.NORMAL
                 );
 
         rightJumpstartAnimation =
                 new Animation<TextureRegion>(
-                        FRAME_DURATION / 5f,
+                        FRAME_DURATION / 6f,
                         testAtlas.findRegions(RegionNames.KNIGHT_JUMPSTART_RIGHT),
                         Animation.PlayMode.NORMAL
                 );

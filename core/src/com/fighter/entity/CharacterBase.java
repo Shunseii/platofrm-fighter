@@ -206,8 +206,7 @@ public abstract class CharacterBase extends Actor {
                 attackState == AttackState.GUARDING ||
                 walkState == WalkState.KNOCKBACK) return;
 
-        if (walkState != WalkState.JUMPSTART)
-            walkState = WalkState.WALKING;
+        walkState = WalkState.WALKING;
 
         if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
         body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
@@ -222,8 +221,7 @@ public abstract class CharacterBase extends Actor {
                 attackState == AttackState.GUARDING ||
                 walkState == WalkState.KNOCKBACK) return;
 
-        if (walkState != WalkState.JUMPSTART)
-            walkState = WalkState.WALKING;
+        walkState = WalkState.WALKING;
 
         if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
         body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
