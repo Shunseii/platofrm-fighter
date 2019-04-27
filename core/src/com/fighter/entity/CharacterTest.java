@@ -7,15 +7,11 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Logger;
 import com.fighter.assets.AssetDescriptors;
 import com.fighter.assets.RegionNames;
-
-import javax.swing.plaf.synth.Region;
 
 public class CharacterTest extends CharacterBase {
 
@@ -82,7 +78,8 @@ public class CharacterTest extends CharacterBase {
     }
 
     @Override
-    public void guard() {}
+    public void guard() {
+    }
 
     // == Protected Methods ==
     @Override
@@ -177,7 +174,7 @@ public class CharacterTest extends CharacterBase {
         Animation attackAnimation = (facing == Direction.LEFT) ?
                 leftAttackAnimation : rightAttackAnimation;
 
-        if (attackAnimation.getKeyFrameIndex(stateTime) == 3 && !attackHit) {
+        if (attackAnimation.getKeyFrameIndex(stateTime) == 3) {
             final float OFFSET = 0.1f;
             int castDirection = (facing == Direction.RIGHT) ? 1 : -1;
 
@@ -192,8 +189,6 @@ public class CharacterTest extends CharacterBase {
 
             world.rayCast(rayCastCallback, getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
                     getX() + castDirection * ATTACK_RANGE, getY());
-        } else if (attackAnimation.getKeyFrameIndex(stateTime) != 3) {
-            attackHit = false;
         }
     }
 }

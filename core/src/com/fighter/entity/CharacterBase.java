@@ -1,14 +1,11 @@
 package com.fighter.entity;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Batch;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
@@ -21,7 +18,7 @@ import com.badlogic.gdx.physics.box2d.RayCastCallback;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
-import com.fighter.assets.AssetDescriptors;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.fighter.config.GameConfig;
 
 
@@ -68,7 +65,6 @@ public abstract class CharacterBase extends Actor {
     protected AttackState attackState;
 
     protected float stateTime;
-    protected boolean attackHit = false;
 
     // Animations
     protected Animation<TextureRegion> leftStandAnimation;
@@ -95,9 +91,11 @@ public abstract class CharacterBase extends Actor {
 
     public Batch testBatch;
 
+    protected long lastHit = TimeUtils.millis();
+
 
     // TODO Add Hit, and death animations
-    // TODO Add iframes
+    // TODO Use state machine instead of enum
     // == Constructors ==
     public CharacterBase(AssetManager assetManager, World world, Vector2 startPosition, int entityNumber) {
         this.assetManager = assetManager;
@@ -279,8 +277,11 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void takeDamage(int damage, Direction knockback) {
+        if (TimeUtils.timeSinceMillis(lastHit) < GameConfig.IFRAME_DURATION) return;
+
         int forceDirection = (knockback == Direction.RIGHT) ? 1 : -1;
         currHealth -= (isGuarding()) ? damage / 2 : damage;
+        lastHit = TimeUtils.millis();
 
         if (currHealth < 0) currHealth = 0;
 
@@ -305,8 +306,11 @@ public abstract class CharacterBase extends Actor {
 
     // == Abstract methods ==
     abstract void setRegions();
+
     abstract void attackRaycast();
+
     abstract void init();
+
     abstract void startJump();
 
     // == Private methods ==
@@ -345,7 +349,7 @@ public abstract class CharacterBase extends Actor {
     }
 
     private void createFootSensor() {
-        Vector2 center = new Vector2(0.0f, - CHARACTER_HEIGHT / 2f);
+        Vector2 center = new Vector2(0.0f, -CHARACTER_HEIGHT / 2f);
         PolygonShape footShape = new PolygonShape();
 
         footShape.setAsBox(CHARACTER_WIDTH / 2.1f, 0.03f, center, 0.0f);
@@ -368,8 +372,6 @@ public abstract class CharacterBase extends Actor {
 
                 Direction damageDirection = (facing == Direction.RIGHT) ? Direction.RIGHT : Direction.LEFT;
                 hitObject.takeDamage(attack, damageDirection);
-
-                attackHit = true;
             }
             return 1f;
         }

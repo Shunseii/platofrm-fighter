@@ -12,6 +12,8 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
 import com.fighter.config.GameConfig;
 
+
+// TODO Use state machine for player input
 public class Player extends Actor {
 
     // == Constants ==

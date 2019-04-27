@@ -15,6 +15,8 @@ public class GameConfig {
     public static final float WORLD_CENTER_X = WORLD_WIDTH / 2; // World units
     public static final float WORLD_CENTER_Y = WORLD_HEIGHT / 2; // World units
 
+    public static final float IFRAME_DURATION = 300f; // milliseconds
+
     // == Constructors ==
     private GameConfig() {}
 }

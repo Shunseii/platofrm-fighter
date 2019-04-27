@@ -191,8 +191,7 @@ public class CharacterTestKnight extends CharacterBase {
         Animation attackAnimation = (facing == Direction.LEFT) ?
                 leftAttackAnimation : rightAttackAnimation;
 
-        if (attackAnimation.getKeyFrameIndex(stateTime) >= 6 && attackAnimation.getKeyFrameIndex(stateTime) <= 9
-                && !attackHit) {
+        if (attackAnimation.getKeyFrameIndex(stateTime) >= 6 && attackAnimation.getKeyFrameIndex(stateTime) <= 9) {
             final float OFFSET = 0.1f;
             int castDirection = (facing == Direction.RIGHT) ? 1 : -1;
 
@@ -207,8 +206,6 @@ public class CharacterTestKnight extends CharacterBase {
 
             world.rayCast(rayCastCallback, getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
                     getX() + castDirection * ATTACK_RANGE, getY());
-        } else if (attackAnimation.getKeyFrameIndex(stateTime) < 6 || attackAnimation.getKeyFrameIndex(stateTime) > 9) {
-            attackHit = false;
         }
     }
 }
