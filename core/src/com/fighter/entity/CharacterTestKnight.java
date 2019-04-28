@@ -69,35 +69,6 @@ public class CharacterTestKnight extends CharacterBase {
         bodyShape.dispose();
     }
 
-    // == Public Methods ==
-    @Override
-    public void startJump() {
-        if (attackState != AttackState.IDLE ||
-                walkState == WalkState.KNOCKBACK)
-            return;
-
-        if (walkState != WalkState.JUMPSTART) {
-            if (isJumping() || walkState == WalkState.WALKING) {
-                jump();
-                return;
-            } else {
-                stateTime = 0;
-            }
-        }
-
-        Animation<TextureRegion> startAnimation = (facing == Direction.RIGHT) ?
-                rightJumpstartAnimation : leftJumpstartAnimation;
-
-        if (numFootContacts < 1) return;
-
-        walkState = WalkState.JUMPSTART;
-        currentRegion = startAnimation.getKeyFrame(stateTime, false);
-
-        if (startAnimation.getKeyFrameIndex(stateTime) == 4) {
-            jump();
-        }
-    }
-
     // == Protected Methods ==
     @Override
     protected void setRegions() {

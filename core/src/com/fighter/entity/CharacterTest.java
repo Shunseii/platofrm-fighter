@@ -69,15 +69,6 @@ public class CharacterTest extends CharacterBase {
 
     // == Public Methods ==
     @Override
-    public void startJump() {
-        if (attackState != AttackState.IDLE ||
-                walkState == WalkState.KNOCKBACK)
-            return;
-
-        jump();
-    }
-
-    @Override
     public void guard() {
     }
 

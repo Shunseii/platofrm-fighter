@@ -1,6 +1,9 @@
 package com.fighter.entity;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.fsm.State;
+import com.badlogic.gdx.ai.fsm.StateMachine;
+import com.badlogic.gdx.ai.msg.Telegram;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.Color;
@@ -60,6 +63,7 @@ public abstract class CharacterBase extends Actor {
     protected World world;
 
     // States
+    protected StateMachine<CharacterBase, CharacterState> actionState;
     protected Direction facing;
     protected WalkState walkState;
     protected AttackState attackState;
@@ -231,6 +235,10 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void jump() {
+        if (attackState != AttackState.IDLE ||
+                walkState == WalkState.KNOCKBACK)
+            return;
+
         // Jump if not already jumping or if have additional jumps remaining in air
         if (!isJumping() || numOfJumps < MAX_JUMPS) {
             walkState = WalkState.STANDING;
@@ -276,6 +284,15 @@ public abstract class CharacterBase extends Actor {
         attackState = AttackState.GUARDING;
     }
 
+    public void stand() {
+        if (walkState == WalkState.KNOCKBACK) return;
+
+        walkState = WalkState.STANDING;
+        attackState = AttackState.IDLE;
+        numOfJumps = 1;
+        body.setLinearVelocity(0, body.getLinearVelocity().y);
+    }
+
     public void takeDamage(int damage, Direction knockback) {
         if (TimeUtils.timeSinceMillis(lastHit) < GameConfig.IFRAME_DURATION) return;
 
@@ -297,11 +314,19 @@ public abstract class CharacterBase extends Actor {
     }
 
     public boolean isJumping() {
-        return numFootContacts < 1 || walkState == WalkState.JUMPSTART;
+        return numFootContacts < 1;
     }
 
     public boolean isGuarding() {
         return attackState == AttackState.GUARDING;
+    }
+
+    public boolean isAttacking() {
+        return attackState == AttackState.ATTACKING;
+    }
+
+    public boolean inAir() {
+        return body.getLinearVelocity().y > 0 || numFootContacts < 1;
     }
 
     // == Abstract methods ==
@@ -310,8 +335,6 @@ public abstract class CharacterBase extends Actor {
     abstract void attackRaycast();
 
     abstract void init();
-
-    abstract void startJump();
 
     // == Private methods ==
     private void update(float delta) {
@@ -329,20 +352,11 @@ public abstract class CharacterBase extends Actor {
         if (body.getLinearVelocity().x == 0 && !isJumping())
             walkState = WalkState.STANDING;
 
-        // Reset guard state every iteration
-        attackState = (attackState != AttackState.ATTACKING) ?
-                AttackState.IDLE : AttackState.ATTACKING;
-
         // Check if jumping
         if (isJumping() && attackState == AttackState.IDLE && walkState != WalkState.KNOCKBACK) {
-            // check if in air or starting jump
-            if (walkState != WalkState.JUMPSTART) {
-                currentRegion = (facing == Direction.LEFT) ?
-                        leftJumpAnimation.getKeyFrame(stateTime, true) :
-                        rightJumpAnimation.getKeyFrame(stateTime, true);
-            } else {
-                startJump();
-            }
+            currentRegion = (facing == Direction.LEFT) ?
+                    leftJumpAnimation.getKeyFrame(stateTime, true) :
+                    rightJumpAnimation.getKeyFrame(stateTime, true);
         }
 
         setPosition(body.getPosition().x, body.getPosition().y);
@@ -386,13 +400,72 @@ public abstract class CharacterBase extends Actor {
     enum WalkState {
         WALKING,
         STANDING,
-        KNOCKBACK,
-        JUMPSTART
+        KNOCKBACK
     }
 
     enum AttackState {
         ATTACKING,
         GUARDING,
         IDLE
+    }
+
+    public enum CharacterState implements State<CharacterBase> {
+
+        STANDING() {
+            @Override
+            public void update(CharacterBase C) {
+                C.stateTime += Gdx.graphics.getDeltaTime();
+
+                C.body.setLinearVelocity(0, C.body.getLinearVelocity().y);
+            }
+        },
+
+        MOVING_LEFT() {
+            @Override
+            public void update(CharacterBase C) {
+                C.stateTime += Gdx.graphics.getDeltaTime();
+            }
+        },
+
+        MOVING_RIGHT() {
+            @Override
+            public void update(CharacterBase C) {
+                C.stateTime += Gdx.graphics.getDeltaTime();
+            }
+        },
+
+        ATTACKING() {
+            @Override
+            public void update(CharacterBase C) {
+                C.stateTime += Gdx.graphics.getDeltaTime();
+            }
+        },
+
+        GUARDING() {
+            @Override
+            public void update(CharacterBase C) {
+                C.stateTime += Gdx.graphics.getDeltaTime();
+            }
+        };
+
+        @Override
+        public void enter(CharacterBase characterBase) {
+            characterBase.stateTime = 0f;
+        }
+
+        @Override
+        public void update(CharacterBase characterBase) {
+
+        }
+
+        @Override
+        public void exit(CharacterBase characterBase) {
+
+        }
+
+        @Override
+        public boolean onMessage(CharacterBase characterBase, Telegram telegram) {
+            return false;
+        }
     }
 }
