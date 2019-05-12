@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
 import com.fighter.config.GameConfig;
 
+// TODO Add AI states
 public class AI extends Actor {
 
     // == Constants ==

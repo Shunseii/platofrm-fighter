@@ -1,6 +1,6 @@
 package com.fighter.entity;
 
-import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
 import com.badlogic.gdx.ai.msg.Telegram;
@@ -23,7 +23,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.fighter.config.GameConfig;
-
 
 public abstract class CharacterBase extends Actor {
 
@@ -65,8 +64,6 @@ public abstract class CharacterBase extends Actor {
     // States
     protected StateMachine<CharacterBase, CharacterState> actionState;
     protected Direction facing;
-    protected WalkState walkState;
-    protected AttackState attackState;
 
     protected float stateTime;
 
@@ -93,26 +90,23 @@ public abstract class CharacterBase extends Actor {
     protected int numOfJumps;
     protected int entityNumber;
 
-    public Batch testBatch;
-
     protected long lastHit = TimeUtils.millis();
 
 
     // TODO Add Hit, and death animations
-    // TODO Use state machine instead of enum
     // == Constructors ==
     public CharacterBase(AssetManager assetManager, World world, Vector2 startPosition, int entityNumber) {
         this.assetManager = assetManager;
         this.world = world;
         this.entityNumber = entityNumber;
 
+        actionState = new DefaultStateMachine<CharacterBase, CharacterState>(this, CharacterState.STANDING);
+
         stateTime = 0;
         numFootContacts = 0;
-        numOfJumps = 1;
+        numOfJumps = 0;
 
         facing = Direction.RIGHT;
-        walkState = WalkState.STANDING;
-        attackState = AttackState.IDLE;
 
         bodyDef = new BodyDef();
         bodyDef.fixedRotation = true;
@@ -147,16 +141,6 @@ public abstract class CharacterBase extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         float bodyX = body.getPosition().x - (SPRITE_WIDTH / 2f);
         float bodyY = body.getPosition().y - (CHARACTER_HEIGHT / 2f);
-
-        testBatch = batch;
-
-        if (walkState == WalkState.STANDING && attackState == AttackState.IDLE && !isJumping()) {
-            if (facing == Direction.RIGHT) {
-                currentRegion = rightStandAnimation.getKeyFrame(stateTime, true);
-            } else {
-                currentRegion = leftStandAnimation.getKeyFrame(stateTime, true);
-            }
-        }
 
         batch.draw(currentRegion,
                 bodyX, bodyY,
@@ -205,92 +189,35 @@ public abstract class CharacterBase extends Actor {
     }
 
     public void moveRight() {
-        if (attackState == AttackState.ATTACKING && !isJumping() ||
-                attackState == AttackState.GUARDING ||
-                walkState == WalkState.KNOCKBACK) return;
-
-        walkState = WalkState.WALKING;
-
-        if (attackState != AttackState.ATTACKING) facing = Direction.RIGHT;
-        body.setLinearVelocity(CHARACTER_SPEED, body.getLinearVelocity().y);
-
-        if (attackState == AttackState.IDLE && !isJumping()) {
-            currentRegion = rightWalkAnimation.getKeyFrame(stateTime, true);
-        }
+        actionState.changeState(CharacterState.MOVING_RIGHT);
     }
 
     public void moveLeft() {
-        if (attackState == AttackState.ATTACKING && !isJumping() ||
-                attackState == AttackState.GUARDING ||
-                walkState == WalkState.KNOCKBACK) return;
-
-        walkState = WalkState.WALKING;
-
-        if (attackState != AttackState.ATTACKING) facing = Direction.LEFT;
-        body.setLinearVelocity(-CHARACTER_SPEED, body.getLinearVelocity().y);
-
-        if (attackState == AttackState.IDLE && !isJumping()) {
-            currentRegion = leftWalkAnimation.getKeyFrame(stateTime, true);
-        }
+        actionState.changeState(CharacterState.MOVING_LEFT);
     }
 
     public void jump() {
-        if (attackState != AttackState.IDLE ||
-                walkState == WalkState.KNOCKBACK)
-            return;
+        actionState.changeState(CharacterState.JUMPING);
+    }
 
-        // Jump if not already jumping or if have additional jumps remaining in air
-        if (!isJumping() || numOfJumps < MAX_JUMPS) {
-            walkState = WalkState.STANDING;
-            stateTime = 0;
-            ++numOfJumps;
-            body.setLinearVelocity(body.getLinearVelocity().x, JUMP_FORCE);
-        }
+    public void jumpLeft() {
+        actionState.changeState(CharacterState.JUMPING_LEFT);
+    }
+
+    public void jumpRight() {
+        actionState.changeState(CharacterState.JUMPING_RIGHT);
     }
 
     public void attack() {
-        // Can't attack while knocked back
-        if (walkState == WalkState.KNOCKBACK) {
-            attackState = AttackState.IDLE;
-            return;
-        }
-
-        // Start attack animation and stop moving if not already attacking
-        if (attackState == AttackState.IDLE) {
-            stateTime = 0;
-            walkState = WalkState.STANDING;
-            attackState = AttackState.ATTACKING;
-        }
-
-        currentRegion = (facing == Direction.LEFT) ?
-                leftAttackAnimation.getKeyFrame(stateTime) :
-                rightAttackAnimation.getKeyFrame(stateTime);
-
-        attackRaycast();
-
-        if (leftAttackAnimation.isAnimationFinished(stateTime)) {
-            attackState = AttackState.IDLE;
-        }
+        actionState.changeState(CharacterState.ATTACKING);
     }
 
     public void guard() {
-        // Can't guard while jumping or attacking
-        if (attackState == AttackState.ATTACKING || isJumping()) return;
-
-        currentRegion = (facing == Direction.RIGHT) ?
-                rightGuardAnimation.getKeyFrame(stateTime, true) :
-                leftGuardAnimation.getKeyFrame(stateTime, true);
-
-        attackState = AttackState.GUARDING;
+        actionState.changeState(CharacterState.GUARDING);
     }
 
     public void stand() {
-        if (walkState == WalkState.KNOCKBACK) return;
-
-        walkState = WalkState.STANDING;
-        attackState = AttackState.IDLE;
-        numOfJumps = 1;
-        body.setLinearVelocity(0, body.getLinearVelocity().y);
+        actionState.changeState(CharacterState.STANDING);
     }
 
     public void takeDamage(int damage, Direction knockback) {
@@ -304,10 +231,7 @@ public abstract class CharacterBase extends Actor {
 
         if (isGuarding()) return;
 
-        if (walkState != WalkState.KNOCKBACK) {
-            walkState = WalkState.KNOCKBACK;
-            body.setLinearVelocity(0, 0);
-        }
+        actionState.changeState(CharacterState.KNOCKED_BACK);
 
         // TODO Apply force proportional to the damage taken
         body.applyLinearImpulse(new Vector2(forceDirection * 0.15f, 0.25f), new Vector2(0, 0), true);
@@ -318,15 +242,19 @@ public abstract class CharacterBase extends Actor {
     }
 
     public boolean isGuarding() {
-        return attackState == AttackState.GUARDING;
+        return actionState.getCurrentState() == CharacterState.GUARDING;
     }
 
     public boolean isAttacking() {
-        return attackState == AttackState.ATTACKING;
+        return actionState.getCurrentState() == CharacterState.ATTACKING;
     }
 
     public boolean inAir() {
         return body.getLinearVelocity().y > 0 || numFootContacts < 1;
+    }
+
+    public boolean isKnockedBack() {
+        return actionState.getCurrentState() == CharacterState.KNOCKED_BACK;
     }
 
     // == Abstract methods ==
@@ -338,27 +266,8 @@ public abstract class CharacterBase extends Actor {
 
     // == Private methods ==
     private void update(float delta) {
-        stateTime += Gdx.graphics.getDeltaTime();
-
-        // If not in the air, set x velocity to 0
-        if (body.getLinearVelocity().y == 0)
-            body.setLinearVelocity(0, body.getLinearVelocity().y);
-
-        if (attackState == AttackState.ATTACKING) attack();
-
-        if (!isJumping()) numOfJumps = 1;
-
-        // If character is not moving, they are standing
-        if (body.getLinearVelocity().x == 0 && !isJumping())
-            walkState = WalkState.STANDING;
-
-        // Check if jumping
-        if (isJumping() && attackState == AttackState.IDLE && walkState != WalkState.KNOCKBACK) {
-            currentRegion = (facing == Direction.LEFT) ?
-                    leftJumpAnimation.getKeyFrame(stateTime, true) :
-                    rightJumpAnimation.getKeyFrame(stateTime, true);
-        }
-
+        stateTime += delta;
+        actionState.update();
         setPosition(body.getPosition().x, body.getPosition().y);
     }
 
@@ -397,60 +306,179 @@ public abstract class CharacterBase extends Actor {
         RIGHT
     }
 
-    enum WalkState {
-        WALKING,
-        STANDING,
-        KNOCKBACK
-    }
-
-    enum AttackState {
-        ATTACKING,
-        GUARDING,
-        IDLE
-    }
-
     public enum CharacterState implements State<CharacterBase> {
 
         STANDING() {
             @Override
             public void update(CharacterBase C) {
-                C.stateTime += Gdx.graphics.getDeltaTime();
+                if (C.inAir())
+                    C.actionState.changeState(FALLING);
 
-                C.body.setLinearVelocity(0, C.body.getLinearVelocity().y);
+                C.currentRegion = (C.facing == Direction.RIGHT) ?
+                        C.rightStandAnimation.getKeyFrame(C.stateTime, true) :
+                        C.leftStandAnimation.getKeyFrame(C.stateTime, true);
+            }
+
+            @Override
+            public void enter(CharacterBase C) {
+                if (C.actionState.getPreviousState() != STANDING) {
+                    C.stateTime = 0f;
+                    C.numOfJumps = 0;
+                    C.body.setLinearVelocity(0, C.body.getLinearVelocity().y);
+                }
+            }
+        },
+
+        FALLING() {
+            @Override
+            public void update(CharacterBase C) {
+                C.currentRegion = (C.facing == Direction.LEFT) ?
+                        C.leftJumpAnimation.getKeyFrame(C.stateTime, true) :
+                        C.rightJumpAnimation.getKeyFrame(C.stateTime, true);
+            }
+        },
+
+        JUMPING() {
+            @Override
+            public void update(CharacterBase C) {
+                if (!C.inAir()) C.actionState.changeState(STANDING);
+
+                C.currentRegion = (C.facing == Direction.LEFT) ?
+                        C.leftJumpAnimation.getKeyFrame(C.stateTime, true) :
+                        C.rightJumpAnimation.getKeyFrame(C.stateTime, true);
+            }
+
+            @Override
+            public void enter(CharacterBase C) {
+                if (!C.isJumping() || C.numOfJumps < C.MAX_JUMPS) {
+                    C.stateTime = 0f;
+                    ++C.numOfJumps;
+                    C.body.setLinearVelocity(C.body.getLinearVelocity().x, C.JUMP_FORCE);
+                }
             }
         },
 
         MOVING_LEFT() {
             @Override
             public void update(CharacterBase C) {
-                C.stateTime += Gdx.graphics.getDeltaTime();
+                C.currentRegion = C.leftWalkAnimation.getKeyFrame(C.stateTime, true);
+                C.facing = Direction.LEFT;
+            }
+
+            @Override
+            public void enter(CharacterBase C) {
+                if (C.actionState.getPreviousState() != MOVING_LEFT) {
+                    C.stateTime = 0f;
+                }
+                C.body.setLinearVelocity(-C.CHARACTER_SPEED, C.body.getLinearVelocity().y);
+            }
+
+            @Override
+            public void exit(CharacterBase C) {
+                C.body.setLinearVelocity(0, C.body.getLinearVelocity().y);
             }
         },
 
         MOVING_RIGHT() {
             @Override
             public void update(CharacterBase C) {
-                C.stateTime += Gdx.graphics.getDeltaTime();
+                C.currentRegion = C.rightWalkAnimation.getKeyFrame(C.stateTime, true);
+                C.facing = Direction.RIGHT;
+            }
+
+            @Override
+            public void enter(CharacterBase C) {
+                if (C.actionState.getPreviousState() != MOVING_RIGHT) {
+                    C.stateTime = 0f;
+                }
+                C.body.setLinearVelocity(C.CHARACTER_SPEED, C.body.getLinearVelocity().y);
+            }
+
+            @Override
+            public void exit(CharacterBase C) {
+                C.body.setLinearVelocity(0, C.body.getLinearVelocity().y);
             }
         },
 
         ATTACKING() {
             @Override
             public void update(CharacterBase C) {
-                C.stateTime += Gdx.graphics.getDeltaTime();
+                if (!C.inAir()) C.body.setLinearVelocity(0, C.body.getLinearVelocity().y);
+
+                C.currentRegion = (C.facing == Direction.LEFT) ?
+                        C.leftAttackAnimation.getKeyFrame(C.stateTime) :
+                        C.rightAttackAnimation.getKeyFrame(C.stateTime);
+
+                C.attackRaycast();
+
+                if (C.leftAttackAnimation.isAnimationFinished(C.stateTime)) {
+                    C.actionState.changeState(STANDING);
+                }
             }
         },
 
         GUARDING() {
             @Override
             public void update(CharacterBase C) {
-                C.stateTime += Gdx.graphics.getDeltaTime();
+                C.currentRegion = (C.facing == Direction.RIGHT) ?
+                        C.rightGuardAnimation.getKeyFrame(C.stateTime, true) :
+                        C.leftGuardAnimation.getKeyFrame(C.stateTime, true);
+            }
+        },
+
+        KNOCKED_BACK() {
+            @Override
+            public void update(CharacterBase C) {
+                C.body.setLinearDamping(7f);
+
+                if (!C.isJumping() && Math.abs(C.body.getLinearVelocity().x) <= 0.1f)
+                    C.actionState.changeState(STANDING);
+
+                //TODO Add hit animation here
+            }
+
+            @Override
+            public void enter(CharacterBase C) {
+                C.body.setLinearVelocity(0, 0);
+            }
+
+            @Override
+            public void exit(CharacterBase C) {
+                C.body.setLinearDamping(0.0f);
+            }
+        },
+
+        JUMPING_LEFT() {
+            @Override
+            public void update(CharacterBase C) {
+                C.currentRegion = C.leftJumpAnimation.getKeyFrame(C.stateTime, true);
+                C.facing = Direction.LEFT;
+            }
+
+            @Override
+            public void enter(CharacterBase C) {
+                C.body.setLinearVelocity(-C.CHARACTER_SPEED, C.body.getLinearVelocity().y);
+            }
+        },
+
+        JUMPING_RIGHT() {
+            @Override
+            public void update(CharacterBase C) {
+                C.currentRegion = C.rightJumpAnimation.getKeyFrame(C.stateTime, true);
+                C.facing = Direction.RIGHT;
+            }
+
+            @Override
+            public void enter(CharacterBase C) {
+                C.body.setLinearVelocity(C.CHARACTER_SPEED, C.body.getLinearVelocity().y);
             }
         };
 
         @Override
         public void enter(CharacterBase characterBase) {
-            characterBase.stateTime = 0f;
+            if (characterBase.actionState.getCurrentState() != characterBase.actionState.getPreviousState()) {
+                characterBase.stateTime = 0f;
+            }
         }
 
         @Override
