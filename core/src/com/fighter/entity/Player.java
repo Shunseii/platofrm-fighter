@@ -2,7 +2,6 @@ package com.fighter.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.ai.fsm.DefaultStateMachine;
 import com.badlogic.gdx.ai.fsm.StackStateMachine;
 import com.badlogic.gdx.ai.fsm.State;
 import com.badlogic.gdx.ai.fsm.StateMachine;
@@ -17,8 +16,6 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.utils.Logger;
 import com.fighter.config.GameConfig;
 
-
-// TODO Use state machine for player input
 public class Player extends Actor {
 
     // == Constants ==
@@ -57,24 +54,9 @@ public class Player extends Actor {
     // == Private methods ==
     private void update() {
         // TODO Detect double click
-        /*if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
-            character.guard();
-        }
 
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && !Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-            character.moveRight();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && !Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-            character.moveLeft();
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)) {
-            character.attack();
-        }
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
-            character.jump();
-        }*/
-        inputState.update();
+        if (!character.isKnockedBack())
+            inputState.update();
     }
 
     public enum InputState implements State<Player> {
@@ -109,7 +91,8 @@ public class Player extends Actor {
         WALKING_LEFT() {
             @Override
             public void update(Player player) {
-                if (!Gdx.input.isKeyPressed(Input.Keys.LEFT)) player.inputState.changeState(STANDING);
+                if (!Gdx.input.isKeyPressed(Input.Keys.LEFT))
+                    player.inputState.changeState(STANDING);
 
                 player.character.moveLeft();
 
@@ -130,7 +113,8 @@ public class Player extends Actor {
         WALKING_RIGHT() {
             @Override
             public void update(Player player) {
-                if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT)) player.inputState.changeState(STANDING);
+                if (!Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+                    player.inputState.changeState(STANDING);
 
                 player.character.moveRight();
 
@@ -156,11 +140,11 @@ public class Player extends Actor {
                 }
 
                 if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                    player.character.moveRight();
+                    player.character.jumpRight();
                 }
 
                 if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                    player.character.moveLeft();
+                    player.character.jumpLeft();
                 }
 
                 if (Gdx.input.isKeyJustPressed(Input.Keys.SHIFT_LEFT)) {
@@ -181,7 +165,8 @@ public class Player extends Actor {
         GUARDING() {
             @Override
             public void update(Player player) {
-                if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) player.inputState.changeState(STANDING);
+                if (!Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT))
+                    player.inputState.changeState(STANDING);
 
                 player.character.guard();
             }
@@ -196,10 +181,6 @@ public class Player extends Actor {
             @Override
             public void update(Player player) {
                 if (!player.character.isAttacking()) player.inputState.changeState(STANDING);
-
-                if (Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)) {
-                    player.character.attack();
-                }
             }
 
             @Override
