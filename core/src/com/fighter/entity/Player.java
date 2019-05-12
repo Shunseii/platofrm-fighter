@@ -64,7 +64,8 @@ public class Player extends Actor {
         STANDING() {
             @Override
             public void update(Player player) {
-                player.character.stand();
+                if (!player.character.isFalling())
+                    player.character.stand();
 
                 if (Gdx.input.isKeyJustPressed(Input.Keys.SPACE)) {
                     player.inputState.changeState(JUMPING);

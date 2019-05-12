@@ -256,6 +256,10 @@ public abstract class CharacterBase extends Actor {
         return body.getLinearVelocity().y > 0 || numFootContacts < 1;
     }
 
+    public boolean isFalling() {
+        return actionState.getCurrentState() == CharacterState.FALLING;
+    }
+
     public boolean isKnockedBack() {
         return actionState.getCurrentState() == CharacterState.KNOCKED_BACK;
     }
@@ -335,6 +339,9 @@ public abstract class CharacterBase extends Actor {
         FALLING() {
             @Override
             public void update(CharacterBase C) {
+                if (!C.inAir())
+                    C.actionState.changeState(STANDING);
+
                 C.currentRegion = (C.facing == Direction.LEFT) ?
                         C.leftJumpAnimation.getKeyFrame(C.stateTime, true) :
                         C.rightJumpAnimation.getKeyFrame(C.stateTime, true);
@@ -344,7 +351,8 @@ public abstract class CharacterBase extends Actor {
         JUMPING() {
             @Override
             public void update(CharacterBase C) {
-                if (!C.inAir()) C.actionState.changeState(STANDING);
+                if (!C.inAir())
+                    C.actionState.changeState(STANDING);
 
                 C.currentRegion = (C.facing == Direction.LEFT) ?
                         C.leftJumpAnimation.getKeyFrame(C.stateTime, true) :
