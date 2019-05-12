@@ -91,6 +91,7 @@ public abstract class CharacterBase extends Actor {
     protected int entityNumber;
 
     protected long lastHit = TimeUtils.millis();
+    protected Batch rayBatch;
 
 
     // TODO Add Hit, and death animations
@@ -141,6 +142,8 @@ public abstract class CharacterBase extends Actor {
     public void draw(Batch batch, float parentAlpha) {
         float bodyX = body.getPosition().x - (SPRITE_WIDTH / 2f);
         float bodyY = body.getPosition().y - (CHARACTER_HEIGHT / 2f);
+
+        rayBatch = batch;
 
         batch.draw(currentRegion,
                 bodyX, bodyY,

@@ -171,7 +171,7 @@ public class CharacterTest extends CharacterBase {
 
             ShapeRenderer shapeRenderer = new ShapeRenderer();
 
-            shapeRenderer.setProjectionMatrix(testBatch.getProjectionMatrix());
+            shapeRenderer.setProjectionMatrix(rayBatch.getProjectionMatrix());
             shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
             shapeRenderer.setColor(Color.RED);
             shapeRenderer.line(getX() + castDirection * (-CHARACTER_WIDTH / 2f + OFFSET), getY(),
